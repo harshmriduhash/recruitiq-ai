@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /auth
+Disallow: /forgot-password
+Disallow: /reset-password
+
+Sitemap: https://recruitiq.lovable.app/sitemap.xml
