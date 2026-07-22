@@ -47,7 +47,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/" });
+      if (data.user) navigate({ to: "/app/dashboard" });
     });
   }, [navigate]);
 
@@ -72,13 +72,13 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("Account created", { description: "You're signed in." });
-        navigate({ to: "/" });
+        navigate({ to: "/app/dashboard" });
       } else {
         const input = signinSchema.parse({ email: fd.get("email"), password: fd.get("password") });
         const { error } = await supabase.auth.signInWithPassword(input);
         if (error) throw error;
         toast.success("Welcome back");
-        navigate({ to: "/" });
+        navigate({ to: "/app/dashboard" });
       }
     } catch (err) {
       const msg = err instanceof z.ZodError ? err.issues[0].message : err instanceof Error ? err.message : "Something went wrong";
@@ -98,7 +98,7 @@ function AuthPage() {
       }
       if (result.redirected) return;
       toast.success("Signed in");
-      navigate({ to: "/" });
+      navigate({ to: "/app/dashboard" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Google sign-in failed");
     } finally {
