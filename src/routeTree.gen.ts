@@ -22,8 +22,8 @@ import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app/team'
 import { Route as AuthenticatedAppOnboardingRouteImport } from './routes/_authenticated/app/onboarding'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/app/dashboard'
-import { Route as AuthenticatedAppCandidatesRouteImport } from './routes/_authenticated/app/candidates'
 import { Route as AuthenticatedAppJobsIndexRouteImport } from './routes/_authenticated/app/jobs/index'
+import { Route as AuthenticatedAppCandidatesIndexRouteImport } from './routes/_authenticated/app/candidates.index'
 import { Route as AuthenticatedAppJobsNewRouteImport } from './routes/_authenticated/app/jobs/new'
 import { Route as AuthenticatedAppJobsIdRouteImport } from './routes/_authenticated/app/jobs/$id'
 import { Route as AuthenticatedAppCandidatesIdRouteImport } from './routes/_authenticated/app/candidates/$id'
@@ -94,16 +94,16 @@ const AuthenticatedAppDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedAppCandidatesRoute =
-  AuthenticatedAppCandidatesRouteImport.update({
-    id: '/candidates',
-    path: '/candidates',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
 const AuthenticatedAppJobsIndexRoute =
   AuthenticatedAppJobsIndexRouteImport.update({
     id: '/jobs/',
     path: '/jobs/',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppCandidatesIndexRoute =
+  AuthenticatedAppCandidatesIndexRouteImport.update({
+    id: '/candidates/',
+    path: '/candidates/',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
 const AuthenticatedAppJobsNewRoute = AuthenticatedAppJobsNewRouteImport.update({
@@ -118,9 +118,9 @@ const AuthenticatedAppJobsIdRoute = AuthenticatedAppJobsIdRouteImport.update({
 } as any)
 const AuthenticatedAppCandidatesIdRoute =
   AuthenticatedAppCandidatesIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedAppCandidatesRoute,
+    id: '/candidates/$id',
+    path: '/candidates/$id',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -133,13 +133,13 @@ export interface FileRoutesByFullPath {
   '/security': typeof SecurityRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app': typeof AuthenticatedAppRouteRouteWithChildren
-  '/app/candidates': typeof AuthenticatedAppCandidatesRouteWithChildren
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/candidates/$id': typeof AuthenticatedAppCandidatesIdRoute
   '/app/jobs/$id': typeof AuthenticatedAppJobsIdRoute
   '/app/jobs/new': typeof AuthenticatedAppJobsNewRoute
+  '/app/candidates/': typeof AuthenticatedAppCandidatesIndexRoute
   '/app/jobs/': typeof AuthenticatedAppJobsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -152,13 +152,13 @@ export interface FileRoutesByTo {
   '/security': typeof SecurityRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app': typeof AuthenticatedAppRouteRouteWithChildren
-  '/app/candidates': typeof AuthenticatedAppCandidatesRouteWithChildren
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
   '/app/candidates/$id': typeof AuthenticatedAppCandidatesIdRoute
   '/app/jobs/$id': typeof AuthenticatedAppJobsIdRoute
   '/app/jobs/new': typeof AuthenticatedAppJobsNewRoute
+  '/app/candidates': typeof AuthenticatedAppCandidatesIndexRoute
   '/app/jobs': typeof AuthenticatedAppJobsIndexRoute
 }
 export interface FileRoutesById {
@@ -173,13 +173,13 @@ export interface FileRoutesById {
   '/security': typeof SecurityRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteRouteWithChildren
-  '/_authenticated/app/candidates': typeof AuthenticatedAppCandidatesRouteWithChildren
   '/_authenticated/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
   '/_authenticated/app/candidates/$id': typeof AuthenticatedAppCandidatesIdRoute
   '/_authenticated/app/jobs/$id': typeof AuthenticatedAppJobsIdRoute
   '/_authenticated/app/jobs/new': typeof AuthenticatedAppJobsNewRoute
+  '/_authenticated/app/candidates/': typeof AuthenticatedAppCandidatesIndexRoute
   '/_authenticated/app/jobs/': typeof AuthenticatedAppJobsIndexRoute
 }
 export interface FileRouteTypes {
@@ -194,13 +194,13 @@ export interface FileRouteTypes {
     | '/security'
     | '/sitemap.xml'
     | '/app'
-    | '/app/candidates'
     | '/app/dashboard'
     | '/app/onboarding'
     | '/app/team'
     | '/app/candidates/$id'
     | '/app/jobs/$id'
     | '/app/jobs/new'
+    | '/app/candidates/'
     | '/app/jobs/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -213,13 +213,13 @@ export interface FileRouteTypes {
     | '/security'
     | '/sitemap.xml'
     | '/app'
-    | '/app/candidates'
     | '/app/dashboard'
     | '/app/onboarding'
     | '/app/team'
     | '/app/candidates/$id'
     | '/app/jobs/$id'
     | '/app/jobs/new'
+    | '/app/candidates'
     | '/app/jobs'
   id:
     | '__root__'
@@ -233,13 +233,13 @@ export interface FileRouteTypes {
     | '/security'
     | '/sitemap.xml'
     | '/_authenticated/app'
-    | '/_authenticated/app/candidates'
     | '/_authenticated/app/dashboard'
     | '/_authenticated/app/onboarding'
     | '/_authenticated/app/team'
     | '/_authenticated/app/candidates/$id'
     | '/_authenticated/app/jobs/$id'
     | '/_authenticated/app/jobs/new'
+    | '/_authenticated/app/candidates/'
     | '/_authenticated/app/jobs/'
   fileRoutesById: FileRoutesById
 }
@@ -348,18 +348,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/app/candidates': {
-      id: '/_authenticated/app/candidates'
-      path: '/candidates'
-      fullPath: '/app/candidates'
-      preLoaderRoute: typeof AuthenticatedAppCandidatesRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
     '/_authenticated/app/jobs/': {
       id: '/_authenticated/app/jobs/'
       path: '/jobs'
       fullPath: '/app/jobs/'
       preLoaderRoute: typeof AuthenticatedAppJobsIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/candidates/': {
+      id: '/_authenticated/app/candidates/'
+      path: '/candidates'
+      fullPath: '/app/candidates/'
+      preLoaderRoute: typeof AuthenticatedAppCandidatesIndexRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/app/jobs/new': {
@@ -378,45 +378,33 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/app/candidates/$id': {
       id: '/_authenticated/app/candidates/$id'
-      path: '/$id'
+      path: '/candidates/$id'
       fullPath: '/app/candidates/$id'
       preLoaderRoute: typeof AuthenticatedAppCandidatesIdRouteImport
-      parentRoute: typeof AuthenticatedAppCandidatesRoute
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
   }
 }
 
-interface AuthenticatedAppCandidatesRouteChildren {
-  AuthenticatedAppCandidatesIdRoute: typeof AuthenticatedAppCandidatesIdRoute
-}
-
-const AuthenticatedAppCandidatesRouteChildren: AuthenticatedAppCandidatesRouteChildren =
-  {
-    AuthenticatedAppCandidatesIdRoute: AuthenticatedAppCandidatesIdRoute,
-  }
-
-const AuthenticatedAppCandidatesRouteWithChildren =
-  AuthenticatedAppCandidatesRoute._addFileChildren(
-    AuthenticatedAppCandidatesRouteChildren,
-  )
-
 interface AuthenticatedAppRouteRouteChildren {
-  AuthenticatedAppCandidatesRoute: typeof AuthenticatedAppCandidatesRouteWithChildren
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppOnboardingRoute: typeof AuthenticatedAppOnboardingRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
+  AuthenticatedAppCandidatesIdRoute: typeof AuthenticatedAppCandidatesIdRoute
   AuthenticatedAppJobsIdRoute: typeof AuthenticatedAppJobsIdRoute
   AuthenticatedAppJobsNewRoute: typeof AuthenticatedAppJobsNewRoute
+  AuthenticatedAppCandidatesIndexRoute: typeof AuthenticatedAppCandidatesIndexRoute
   AuthenticatedAppJobsIndexRoute: typeof AuthenticatedAppJobsIndexRoute
 }
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
-  AuthenticatedAppCandidatesRoute: AuthenticatedAppCandidatesRouteWithChildren,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppOnboardingRoute: AuthenticatedAppOnboardingRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
+  AuthenticatedAppCandidatesIdRoute: AuthenticatedAppCandidatesIdRoute,
   AuthenticatedAppJobsIdRoute: AuthenticatedAppJobsIdRoute,
   AuthenticatedAppJobsNewRoute: AuthenticatedAppJobsNewRoute,
+  AuthenticatedAppCandidatesIndexRoute: AuthenticatedAppCandidatesIndexRoute,
   AuthenticatedAppJobsIndexRoute: AuthenticatedAppJobsIndexRoute,
 }
 

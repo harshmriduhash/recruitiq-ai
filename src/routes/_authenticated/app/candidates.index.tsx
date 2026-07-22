@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/app/candidates")({
+export const Route = createFileRoute("/_authenticated/app/candidates/")({
   head: () => ({ meta: [{ title: "Candidates — RecruitIQ" }] }),
   component: CandidatesPage,
 });
