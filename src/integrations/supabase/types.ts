@@ -67,6 +67,7 @@ export type Database = {
           parsed_profile: Json | null
           raw_resume_text: string | null
           resume_storage_path: string
+          search_tsv: unknown
           uploaded_by: string | null
         }
         Insert: {
@@ -80,6 +81,7 @@ export type Database = {
           parsed_profile?: Json | null
           raw_resume_text?: string | null
           resume_storage_path: string
+          search_tsv?: unknown
           uploaded_by?: string | null
         }
         Update: {
@@ -93,6 +95,7 @@ export type Database = {
           parsed_profile?: Json | null
           raw_resume_text?: string | null
           resume_storage_path?: string
+          search_tsv?: unknown
           uploaded_by?: string | null
         }
         Relationships: [
@@ -234,6 +237,7 @@ export type Database = {
           id: string
           monthly_candidate_quota: number
           name: string
+          onboarding_completed_at: string | null
           period_started_at: string
           plan: Database["public"]["Enums"]["plan_tier"]
           stripe_customer_id: string | null
@@ -245,6 +249,7 @@ export type Database = {
           id?: string
           monthly_candidate_quota?: number
           name: string
+          onboarding_completed_at?: string | null
           period_started_at?: string
           plan?: Database["public"]["Enums"]["plan_tier"]
           stripe_customer_id?: string | null
@@ -256,6 +261,7 @@ export type Database = {
           id?: string
           monthly_candidate_quota?: number
           name?: string
+          onboarding_completed_at?: string | null
           period_started_at?: string
           plan?: Database["public"]["Enums"]["plan_tier"]
           stripe_customer_id?: string | null
@@ -462,6 +468,17 @@ export type Database = {
         Returns: boolean
       }
       is_org_member: { Args: { _org_id: string }; Returns: boolean }
+      search_candidates: {
+        Args: { _limit?: number; _query: string }
+        Returns: {
+          candidate_email: string
+          candidate_name: string
+          created_at: string
+          id: string
+          job_requisition_id: string
+          rank: number
+        }[]
+      }
     }
     Enums: {
       app_role: "owner" | "admin" | "recruiter" | "viewer"
