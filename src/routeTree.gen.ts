@@ -19,6 +19,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/app/route'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
 import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app/team'
 import { Route as AuthenticatedAppOnboardingRouteImport } from './routes/_authenticated/app/onboarding'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/app/dashboard'
@@ -76,6 +77,11 @@ const AuthenticatedAppRouteRoute = AuthenticatedAppRouteRouteImport.update({
   id: '/app',
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
 const AuthenticatedAppTeamRoute = AuthenticatedAppTeamRouteImport.update({
   id: '/team',
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
   '/app/candidates/$id': typeof AuthenticatedAppCandidatesIdRoute
   '/app/jobs/$id': typeof AuthenticatedAppJobsIdRoute
   '/app/jobs/new': typeof AuthenticatedAppJobsNewRoute
@@ -151,10 +158,10 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/security': typeof SecurityRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/app': typeof AuthenticatedAppRouteRouteWithChildren
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/app/team': typeof AuthenticatedAppTeamRoute
+  '/app': typeof AuthenticatedAppIndexRoute
   '/app/candidates/$id': typeof AuthenticatedAppCandidatesIdRoute
   '/app/jobs/$id': typeof AuthenticatedAppJobsIdRoute
   '/app/jobs/new': typeof AuthenticatedAppJobsNewRoute
@@ -176,6 +183,7 @@ export interface FileRoutesById {
   '/_authenticated/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/app/onboarding': typeof AuthenticatedAppOnboardingRoute
   '/_authenticated/app/team': typeof AuthenticatedAppTeamRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/candidates/$id': typeof AuthenticatedAppCandidatesIdRoute
   '/_authenticated/app/jobs/$id': typeof AuthenticatedAppJobsIdRoute
   '/_authenticated/app/jobs/new': typeof AuthenticatedAppJobsNewRoute
@@ -197,6 +205,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/onboarding'
     | '/app/team'
+    | '/app/'
     | '/app/candidates/$id'
     | '/app/jobs/$id'
     | '/app/jobs/new'
@@ -212,10 +221,10 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/security'
     | '/sitemap.xml'
-    | '/app'
     | '/app/dashboard'
     | '/app/onboarding'
     | '/app/team'
+    | '/app'
     | '/app/candidates/$id'
     | '/app/jobs/$id'
     | '/app/jobs/new'
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/dashboard'
     | '/_authenticated/app/onboarding'
     | '/_authenticated/app/team'
+    | '/_authenticated/app/'
     | '/_authenticated/app/candidates/$id'
     | '/_authenticated/app/jobs/$id'
     | '/_authenticated/app/jobs/new'
@@ -327,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
     '/_authenticated/app/team': {
       id: '/_authenticated/app/team'
       path: '/team'
@@ -390,6 +407,7 @@ interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppOnboardingRoute: typeof AuthenticatedAppOnboardingRoute
   AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppCandidatesIdRoute: typeof AuthenticatedAppCandidatesIdRoute
   AuthenticatedAppJobsIdRoute: typeof AuthenticatedAppJobsIdRoute
   AuthenticatedAppJobsNewRoute: typeof AuthenticatedAppJobsNewRoute
@@ -401,6 +419,7 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppOnboardingRoute: AuthenticatedAppOnboardingRoute,
   AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppCandidatesIdRoute: AuthenticatedAppCandidatesIdRoute,
   AuthenticatedAppJobsIdRoute: AuthenticatedAppJobsIdRoute,
   AuthenticatedAppJobsNewRoute: AuthenticatedAppJobsNewRoute,
