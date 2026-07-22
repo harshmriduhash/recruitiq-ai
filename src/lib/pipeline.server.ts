@@ -131,7 +131,7 @@ export async function runFullPipeline(args: {
 }): Promise<{ evaluationId: string }> {
   const { supabase, organizationId, jobRequisitionId, candidateId, storagePath, pipelineRunId } = args;
 
-  const updateRun = (patch: Record<string, unknown>) =>
+  const updateRun = (patch: Database["public"]["Tables"]["pipeline_runs"]["Update"]) =>
     supabase.from("pipeline_runs").update(patch).eq("id", pipelineRunId);
 
   try {

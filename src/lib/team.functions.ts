@@ -24,17 +24,28 @@ export const listTeam = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data: profile } = await context.supabase.from("profiles").select("organization_id").eq("id", context.userId).single();
     if (!profile) throw new Error("Profile missing");
-    const { data: members, error } = await context.supabase
-      .from("profiles")
-      .select("id, email, full_name, avatar_url, user_roles(role)")
-      .eq("organization_id", profile.organization_id);
-    if (error) throw error;
-    return members.map((m) => ({
+    const org = profile.organization_id;
+    const [{ data: members, error: mErr }, { data: roles, error: rErr }] = await Promise.all([
+      context.supabase
+        .from("profiles")
+        .select("id, email, full_name, avatar_url")
+        .eq("organization_id", org),
+      context.supabase.from("user_roles").select("user_id, role").eq("organization_id", org),
+    ]);
+    if (mErr) throw mErr;
+    if (rErr) throw rErr;
+    const rolesByUser = new Map<string, string[]>();
+    for (const r of roles ?? []) {
+      const arr = rolesByUser.get(r.user_id) ?? [];
+      arr.push(r.role);
+      rolesByUser.set(r.user_id, arr);
+    }
+    return (members ?? []).map((m) => ({
       id: m.id,
       email: m.email,
       full_name: m.full_name,
       avatar_url: m.avatar_url,
-      roles: (m.user_roles ?? []).map((r: { role: string }) => r.role),
+      roles: rolesByUser.get(m.id) ?? [],
     }));
   });
 

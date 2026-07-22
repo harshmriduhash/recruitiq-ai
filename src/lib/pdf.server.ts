@@ -4,7 +4,7 @@ import { extractText, getDocumentProxy } from "unpdf";
 export async function extractPdfText(buf: ArrayBuffer): Promise<string> {
   const pdf = await getDocumentProxy(new Uint8Array(buf));
   const { text } = await extractText(pdf, { mergePages: true });
-  return typeof text === "string" ? text : text.join("\n\n");
+  return Array.isArray(text) ? text.join("\n\n") : String(text ?? "");
 }
 
 // Basic prompt-injection sanitization: strip instruction-like sequences, control chars.

@@ -99,7 +99,7 @@ export const getCandidateWithEvaluation = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: candidate, error } = await context.supabase
       .from("candidates")
-      .select("*, match_evaluations(*), pipeline_runs(id, status, current_stage, progress, error_message, created_at), job_requisitions(id, title, extracted_requirements)")
+      .select("id, candidate_name, candidate_email, created_at, job_requisition_id, raw_resume_text, resume_storage_path, match_evaluations(*), pipeline_runs(id, status, current_stage, progress, error_message, created_at), job_requisitions(id, title, extracted_requirements)")
       .eq("id", data.id)
       .is("deleted_at", null)
       .single();
