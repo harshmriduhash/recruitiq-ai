@@ -176,27 +176,50 @@ sequenceDiagram
 
 ## 🗺️ Development Roadmap
 
-### ✅ Built (Turn 1)
-- Design system (Bold Tech: violet + cyan + navy, dark-first)
+### ✅ Built (Turn 1 — Foundations)
+- Design system (Bold Tech: violet + cyan + navy, dark-first) with reduced-motion audit
 - Full database schema with RLS + GRANTs on every table
-- Multi-tenant organizations, user_roles (RBAC), signup trigger
-- Storage bucket for resumes (private, org-scoped)
-- Landing page (hero with layered animations, features, pipeline diagram, pricing, footer)
+- Multi-tenant organizations, `user_roles` (RBAC), signup trigger
+- Storage buckets (private, org-scoped): `resumes`, `voice-recordings`
+- Landing page (hero, features, pipeline diagram, pricing, footer)
 - Marketing pages: `/pricing`, `/how-it-works`, `/security`
 - Auth flows: `/auth` (email + Google), `/forgot-password`, `/reset-password`
-- Session-aware nav, root `onAuthStateChange` subscriber
-- SEO: real head metadata, sitemap.xml, robots.txt
+- SEO: unique per-route metadata, sitemap.xml, robots.txt
 
-### 🚧 Pending (Turns 2–6)
-- **Turn 2:** Onboarding wizard, `/app/dashboard`, `/app/jobs`, requirement-extraction agent
-- **Turn 3:** Resume upload, 4-agent pipeline (evidence + scoring + explanation), match breakdown UI, prompt-injection sanitization
-- **Turn 4:** Team invites + RBAC UI, global candidate search (hybrid pgvector + FTS), resume embeddings pipeline
-- **Turn 5:** Stripe billing, per-plan quotas, `/app/settings/*`, account deletion (14-day soft-delete)
-- **Turn 6:** Playwright E2E, scoring unit tests, reduced-motion audit, full checklists, this README with real screenshots
+### ✅ Built (Turns 2–3 — Core loop)
+- Onboarding wizard (`/app/onboarding`) — required before dashboard
+- Dashboard (`/app/dashboard`) with KPI stats and recent evaluations
+- Jobs (`/app/jobs`) — create, view, requirement-extraction agent
+- Resume upload + 4-agent pipeline (extraction → evidence → scoring → explanation)
+- Match breakdown UI with per-requirement evidence, confidence, and must-have gating
+- Prompt-injection sanitization + PII redaction on all resume text
+- Live progress UI (polls `pipeline_runs` while running)
+
+### ✅ Built (Turn 4 — Team, search, embeddings)
+- Team management (`/app/team`) — invite by email, RBAC role editor
+- Global candidate search (`/app/candidates`) — hybrid Postgres FTS + pgvector fallback
+- Resume embeddings pipeline (`text-embedding-3-small`, 1536-dim, chunked)
+
+### ✅ Built (Turn 5 — Growth features)
+- **Voice AI pre-screen** — browser MediaRecorder → Supabase Storage → Lovable AI Gateway
+  `openai/gpt-4o-mini-transcribe` → Gemini 3 Flash structured summary
+  (recommendation, Q&A, compensation, start date, work authorization)
+- **ATS integrations** — Greenhouse (Harvest), Lever, Ashby
+  - Per-org API key vault (RLS: Owner/Admin only)
+  - Live provider validation on connect
+  - Job picker + candidate import with de-duplication (`ats_imports` audit trail)
+  - Configurable at `/app/integrations`
+- PDF export of match reports
+- Job progress UI aggregated per requisition
+
+### 🚧 Pending (Turn 6 — Hardening)
+- Playwright E2E happy-path
+- Scoring engine unit tests (deterministic — highest priority)
+- Stripe billing + per-plan quotas
+- README screenshots (post-first-tenant)
 
 ### 🔭 Next (post-MVP)
-- **Voice AI pre-screen** (PRD §9.3) — telephony-based structured screening call
-- **ATS integrations** — Greenhouse, Lever, Ashby (Growth tier)
+- **Twilio-backed outbound telephony** for voice pre-screen (currently browser-recorded)
 - **SAML SSO** for Scale tier
 - **BullMQ-backed pipeline** for high-volume batch imports
 - **Audit-log export UI** (table already writes, export deferred)
