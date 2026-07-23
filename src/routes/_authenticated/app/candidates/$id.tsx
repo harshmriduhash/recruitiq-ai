@@ -7,6 +7,7 @@ import { ScorePill } from "@/routes/_authenticated/app/dashboard";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, MinusCircle } from "lucide-react";
+import { VoiceScreenPanel } from "@/components/voice-screen-panel";
 
 export const Route = createFileRoute("/_authenticated/app/candidates/$id")({
   head: () => ({ meta: [{ title: "Candidate — RecruitIQ" }] }),
