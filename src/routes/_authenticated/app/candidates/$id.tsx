@@ -94,6 +94,8 @@ function CandidateDetail() {
             </Card>
           </>
         )}
+
+        <VoiceScreenPanel candidateId={id} />
       </div>
     </>
   );
