@@ -14,6 +14,136 @@ export type Database = {
   }
   public: {
     Tables: {
+      ats_connections: {
+        Row: {
+          api_key: string
+          config: Json
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          display_name: string
+          id: string
+          last_error: string | null
+          last_sync_at: string | null
+          organization_id: string
+          provider: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          api_key: string
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          display_name: string
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          organization_id: string
+          provider: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          display_name?: string
+          id?: string
+          last_error?: string | null
+          last_sync_at?: string | null
+          organization_id?: string
+          provider?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ats_connections_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ats_imports: {
+        Row: {
+          candidate_id: string | null
+          connection_id: string
+          created_at: string
+          error: string | null
+          external_candidate_id: string
+          external_job_id: string | null
+          id: string
+          job_requisition_id: string | null
+          metadata: Json
+          organization_id: string
+          provider: string
+          status: string
+        }
+        Insert: {
+          candidate_id?: string | null
+          connection_id: string
+          created_at?: string
+          error?: string | null
+          external_candidate_id: string
+          external_job_id?: string | null
+          id?: string
+          job_requisition_id?: string | null
+          metadata?: Json
+          organization_id: string
+          provider: string
+          status?: string
+        }
+        Update: {
+          candidate_id?: string | null
+          connection_id?: string
+          created_at?: string
+          error?: string | null
+          external_candidate_id?: string
+          external_job_id?: string | null
+          id?: string
+          job_requisition_id?: string | null
+          metadata?: Json
+          organization_id?: string
+          provider?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ats_imports_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ats_imports_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "ats_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ats_imports_job_requisition_id_fkey"
+            columns: ["job_requisition_id"]
+            isOneToOne: false
+            referencedRelation: "job_requisitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ats_imports_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -446,6 +576,85 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "user_roles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      voice_screens: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          duration_seconds: number | null
+          error_message: string | null
+          id: string
+          job_requisition_id: string
+          organization_id: string
+          questions: Json
+          recording_storage_path: string | null
+          status: string
+          structured_notes: Json | null
+          summary: string | null
+          transcript_text: string | null
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          duration_seconds?: number | null
+          error_message?: string | null
+          id?: string
+          job_requisition_id: string
+          organization_id: string
+          questions?: Json
+          recording_storage_path?: string | null
+          status?: string
+          structured_notes?: Json | null
+          summary?: string | null
+          transcript_text?: string | null
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          duration_seconds?: number | null
+          error_message?: string | null
+          id?: string
+          job_requisition_id?: string
+          organization_id?: string
+          questions?: Json
+          recording_storage_path?: string | null
+          status?: string
+          structured_notes?: Json | null
+          summary?: string | null
+          transcript_text?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_screens_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voice_screens_job_requisition_id_fkey"
+            columns: ["job_requisition_id"]
+            isOneToOne: false
+            referencedRelation: "job_requisitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voice_screens_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
