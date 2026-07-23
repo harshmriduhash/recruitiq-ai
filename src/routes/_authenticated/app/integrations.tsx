@@ -13,7 +13,7 @@ import {
   listAtsConnections, createAtsConnection, deleteAtsConnection,
   listRemoteJobs, importCandidatesForJob,
 } from "@/lib/ats.functions";
-import { listJobRequisitions } from "@/lib/jobs.functions";
+import { listJobs } from "@/lib/jobs.functions";
 import { Plug, Trash2, Loader2, CheckCircle2, AlertCircle, DownloadCloud } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/integrations")({
