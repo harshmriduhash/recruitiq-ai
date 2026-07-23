@@ -135,7 +135,7 @@ function ConnectionRow({ conn, onChange }: { conn: any; onChange: () => void }) 
 
 function ImportPanel({ conn }: { conn: any }) {
   const jobsFn = useServerFn(listRemoteJobs);
-  const localJobsFn = useServerFn(listJobRequisitions);
+  const localJobsFn = useServerFn(listJobs);
   const importFn = useServerFn(importCandidatesForJob);
   const [selectedRemote, setSelectedRemote] = useState<string>("");
   const [selectedLocal, setSelectedLocal] = useState<string>("");
