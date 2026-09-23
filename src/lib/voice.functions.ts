@@ -194,7 +194,7 @@ export const listVoiceScreens = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("voice_screens")
-      .select("id, status, summary, structured_notes, questions, duration_seconds, transcript_text, created_at, recording_storage_path, error_message")
+      .select("id, status, summary, structured_notes, questions, duration_seconds, transcript_text, created_at, recording_storage_path, error_message, review_status, reviewed_at, reviewed_by, recruiter_notes, ats_synced_at, ats_sync_error, ats_external_note_id")
       .eq("candidate_id", data.candidateId)
       .is("deleted_at", null)
       .order("created_at", { ascending: false });
