@@ -116,8 +116,15 @@ function StartRecordingButton({ candidateId, onDone }: { candidateId: string; on
   );
 }
 
-function ScreenRow({ screen }: { screen: any }) {
+function ScreenRow({ screen, onChange }: { screen: any; onChange: () => void }) {
   const urlFn = useServerFn(getVoiceRecordingUrl);
+  const updateFn = useServerFn(updateVoiceScreen);
+  const pushFn = useServerFn(pushVoiceScreenToAts);
+  const [editing, setEditing] = useState(false);
+  const [summary, setSummary] = useState(screen.summary ?? "");
+  const [recruiterNotes, setRecruiterNotes] = useState(screen.recruiter_notes ?? "");
+  const [recommendation, setRecommendation] = useState(screen.structured_notes?.recommendation ?? "hold");
+
   const play = useMutation({
     mutationFn: async () => {
       const { url } = await urlFn({ data: { path: screen.recording_storage_path } });
@@ -125,12 +132,34 @@ function ScreenRow({ screen }: { screen: any }) {
       await audio.play();
     },
   });
+
+  const save = useMutation({
+    mutationFn: (markReviewed: boolean) =>
+      updateFn({ data: { screenId: screen.id, summary, recruiterNotes, recommendation: recommendation as any, markReviewed } }),
+    onSuccess: (r: any) => {
+      if (r?.ok === false) { toast.error(r.error); return; }
+      toast.success("Pre-screen updated");
+      setEditing(false);
+      onChange();
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Could not save"),
+  });
+
+  const push = useMutation({
+    mutationFn: () => pushFn({ data: { screenId: screen.id } }),
+    onSuccess: (r: any) => {
+      if (r?.ok) { toast.success(`Sent to ${r.provider}`); onChange(); }
+      else toast.error(r?.error ?? "Could not send to your ATS");
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Could not send to your ATS"),
+  });
+
   const notes = screen.structured_notes || {};
   const active = ["pending", "recording", "transcribing", "summarizing"].includes(screen.status);
   return (
     <div className="rounded-md border border-border/60 p-4">
       <div className="flex items-start justify-between gap-4 mb-3">
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-2 min-w-0 flex-wrap">
           {screen.status === "complete" ? <CheckCircle2 className="size-4 text-emerald-400" /> :
            screen.status === "failed" ? <AlertCircle className="size-4 text-rose-400" /> :
            <Loader2 className="size-4 animate-spin text-violet-300" />}
@@ -145,16 +174,67 @@ function ScreenRow({ screen }: { screen: any }) {
               "bg-amber-500/15 border-amber-500/30 text-amber-300"
             }`}>{notes.recommendation}</Badge>
           )}
+          {screen.review_status === "reviewed" && (
+            <Badge className="text-[10px] border bg-sky-500/15 border-sky-500/30 text-sky-300">reviewed</Badge>
+          )}
+          {screen.ats_synced_at && (
+            <Badge className="text-[10px] border bg-violet-500/15 border-violet-500/30 text-violet-200">in ATS</Badge>
+          )}
         </div>
-        {screen.recording_storage_path && !active && (
-          <Button size="sm" variant="ghost" className="gap-2 h-8" onClick={() => play.mutate()}>
-            <Play className="size-3" /> Play
-          </Button>
-        )}
+        <div className="flex items-center gap-1 shrink-0">
+          {screen.recording_storage_path && !active && (
+            <Button size="sm" variant="ghost" className="gap-2 h-8" onClick={() => play.mutate()}>
+              <Play className="size-3" /> Play
+            </Button>
+          )}
+          {screen.status === "complete" && (
+            <Button size="sm" variant="ghost" className="gap-2 h-8" onClick={() => setEditing((v) => !v)}>
+              <Pencil className="size-3" /> {editing ? "Cancel" : "Review"}
+            </Button>
+          )}
+          {screen.status === "complete" && (
+            <Button size="sm" variant="ghost" className="gap-2 h-8" disabled={push.isPending} onClick={() => push.mutate()}>
+              {push.isPending ? <Loader2 className="size-3 animate-spin" /> : <Send className="size-3" />} Send to ATS
+            </Button>
+          )}
+        </div>
       </div>
 
       {screen.status === "failed" && <p className="text-xs text-rose-300">{screen.error_message}</p>}
-      {screen.summary && <p className="text-sm text-foreground/90 mb-3">{screen.summary}</p>}
+      {screen.ats_sync_error && <p className="text-xs text-rose-300 mb-2">ATS sync: {screen.ats_sync_error}</p>}
+
+      {editing ? (
+        <div className="space-y-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Summary</div>
+            <Textarea rows={4} value={summary} onChange={(e) => setSummary(e.target.value)} />
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Recruiter notes</div>
+            <Textarea rows={3} placeholder="Your own observations…" value={recruiterNotes} onChange={(e) => setRecruiterNotes(e.target.value)} />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Recommendation</span>
+            {(["advance", "hold", "reject"] as const).map((r) => (
+              <Button key={r} size="sm" variant={recommendation === r ? "default" : "outline"} className="h-7 text-xs capitalize"
+                onClick={() => setRecommendation(r)}>{r}</Button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" disabled={save.isPending} onClick={() => save.mutate(true)} className="gap-2">
+              {save.isPending && <Loader2 className="size-3 animate-spin" />} Save &amp; mark reviewed
+            </Button>
+            <Button size="sm" variant="outline" disabled={save.isPending} onClick={() => save.mutate(false)}>Save draft</Button>
+          </div>
+        </div>
+      ) : (
+        <>
+          {screen.summary && <p className="text-sm text-foreground/90 mb-3">{screen.summary}</p>}
+          {screen.recruiter_notes && (
+            <p className="text-xs text-muted-foreground mb-3"><span className="text-foreground/70">Recruiter notes:</span> {screen.recruiter_notes}</p>
+          )}
+        </>
+      )}
 
       {notes.answers?.length > 0 && (
         <details className="text-xs text-muted-foreground">
