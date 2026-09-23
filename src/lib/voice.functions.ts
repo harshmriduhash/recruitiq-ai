@@ -227,7 +227,14 @@ export const updateVoiceScreen = createServerFn({ method: "POST" })
     if (sErr || !screen) throw new Error("Screen not found");
     if (screen.organization_id !== organization_id) throw new Error("Forbidden");
 
-    const patch: Record<string, any> = {};
+    const patch: {
+      summary?: string;
+      recruiter_notes?: string;
+      structured_notes?: Record<string, unknown>;
+      review_status?: string;
+      reviewed_by?: string;
+      reviewed_at?: string;
+    } = {};
     if (data.summary !== undefined) patch.summary = data.summary;
     if (data.recruiterNotes !== undefined) patch.recruiter_notes = data.recruiterNotes;
     if (data.recommendation !== undefined) {
