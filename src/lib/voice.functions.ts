@@ -230,7 +230,7 @@ export const updateVoiceScreen = createServerFn({ method: "POST" })
     const patch: {
       summary?: string;
       recruiter_notes?: string;
-      structured_notes?: Record<string, unknown>;
+      structured_notes?: never;
       review_status?: string;
       reviewed_by?: string;
       reviewed_at?: string;
