@@ -194,12 +194,69 @@ export const listVoiceScreens = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("voice_screens")
-      .select("id, status, summary, structured_notes, questions, duration_seconds, transcript_text, created_at, recording_storage_path, error_message")
+      .select("id, status, summary, structured_notes, questions, duration_seconds, transcript_text, created_at, recording_storage_path, error_message, review_status, reviewed_at, reviewed_by, recruiter_notes, ats_synced_at, ats_sync_error, ats_external_note_id")
       .eq("candidate_id", data.candidateId)
       .is("deleted_at", null)
       .order("created_at", { ascending: false });
     if (error) throw error;
     return rows;
+  });
+
+/** Recruiter review: edit the AI summary / recommendation and mark the screen reviewed. */
+export const updateVoiceScreen = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        screenId: z.string().uuid(),
+        summary: z.string().max(4000).optional(),
+        recruiterNotes: z.string().max(4000).optional(),
+        recommendation: z.enum(["advance", "hold", "reject"]).optional(),
+        markReviewed: z.boolean().optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const organization_id = await orgIdFor(context.supabase, context.userId);
+
+    const { data: screen, error: sErr } = await context.supabase
+      .from("voice_screens")
+      .select("id, organization_id, structured_notes")
+      .eq("id", data.screenId)
+      .single();
+    if (sErr || !screen) throw new Error("Screen not found");
+    if (screen.organization_id !== organization_id) throw new Error("Forbidden");
+
+    const patch: {
+      summary?: string;
+      recruiter_notes?: string;
+      structured_notes?: any;
+      review_status?: string;
+      reviewed_by?: string;
+      reviewed_at?: string;
+    } = {};
+    if (data.summary !== undefined) patch.summary = data.summary;
+    if (data.recruiterNotes !== undefined) patch.recruiter_notes = data.recruiterNotes;
+    if (data.recommendation !== undefined) {
+      patch.structured_notes = { ...((screen.structured_notes as any) ?? {}), recommendation: data.recommendation };
+    }
+    if (data.markReviewed) {
+      patch.review_status = "reviewed";
+      patch.reviewed_by = context.userId;
+      patch.reviewed_at = new Date().toISOString();
+    }
+
+    const { error } = await context.supabase.from("voice_screens").update(patch).eq("id", screen.id);
+    if (error) return { ok: false, error: error.message };
+
+    await writeAudit(context.supabase, {
+      organization_id,
+      actor_user_id: context.userId,
+      action: data.markReviewed ? "voice_screen.reviewed" : "voice_screen.edited",
+      target_type: "voice_screen",
+      target_id: screen.id,
+    });
+    return { ok: true };
   });
 
 export const getVoiceRecordingUrl = createServerFn({ method: "GET" })

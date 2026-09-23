@@ -279,3 +279,212 @@ export const importCandidatesForJob = createServerFn({ method: "POST" })
 
     return { ok: true, imported, skipped };
   });
+
+/* ------------------------------------------------------------------ */
+/* Per-candidate sync + voice → ATS mapping                            */
+/* ------------------------------------------------------------------ */
+
+type RemoteCandidate = { name: string | null; email: string | null; stage: string | null };
+
+async function fetchRemoteCandidate(provider: string, apiKey: string, externalId: string): Promise<RemoteCandidate> {
+  const auth = "Basic " + btoa(`${apiKey}:`);
+  if (provider === "greenhouse") {
+    const r = await fetch(`https://harvest.greenhouse.io/v1/candidates/${encodeURIComponent(externalId)}`, { headers: { Authorization: auth } });
+    if (!r.ok) throw new Error(`Greenhouse ${r.status}: ${await r.text()}`);
+    const c: any = await r.json();
+    return {
+      name: `${c.first_name ?? ""} ${c.last_name ?? ""}`.trim() || null,
+      email: c.email_addresses?.[0]?.value ?? null,
+      stage: c.applications?.[0]?.current_stage?.name ?? null,
+    };
+  }
+  if (provider === "lever") {
+    const r = await fetch(`https://api.lever.co/v1/opportunities/${encodeURIComponent(externalId)}`, { headers: { Authorization: auth } });
+    if (!r.ok) throw new Error(`Lever ${r.status}: ${await r.text()}`);
+    const j: any = await r.json();
+    const c = j.data ?? {};
+    return { name: c.name ?? null, email: c.emails?.[0] ?? null, stage: c.stage?.text ?? c.stage ?? null };
+  }
+  if (provider === "ashby") {
+    const r = await fetch("https://api.ashbyhq.com/candidate.info", {
+      method: "POST", headers: { Authorization: auth, "Content-Type": "application/json" },
+      body: JSON.stringify({ id: externalId }),
+    });
+    if (!r.ok) throw new Error(`Ashby ${r.status}: ${await r.text()}`);
+    const j: any = await r.json();
+    const c = j.results ?? {};
+    return { name: c.name ?? null, email: c.primaryEmailAddress?.value ?? null, stage: c.applicationIds?.length ? "Active" : null };
+  }
+  throw new Error("Unknown provider");
+}
+
+/** Where does this candidate come from in the ATS (if anywhere)? */
+export const getCandidateAtsLink = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ candidateId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: row } = await context.supabase
+      .from("ats_imports")
+      .select("id, provider, external_candidate_id, external_job_id, external_stage, last_synced_at, connection_id, created_at")
+      .eq("candidate_id", data.candidateId)
+      .maybeSingle();
+    return row ?? null;
+  });
+
+/** Pull the latest name / email / stage for one imported candidate. */
+export const syncAtsCandidate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ candidateId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { organization_id } = await ctx(context.supabase, context.userId);
+
+    const { data: link } = await context.supabase
+      .from("ats_imports")
+      .select("id, connection_id, provider, external_candidate_id")
+      .eq("candidate_id", data.candidateId)
+      .maybeSingle();
+    if (!link) return { ok: false, error: "This candidate was not imported from an ATS." };
+
+    const { data: conn } = await context.supabase
+      .from("ats_connections")
+      .select("id, provider, api_key")
+      .eq("id", link.connection_id)
+      .maybeSingle();
+    if (!conn) return { ok: false, error: "ATS connection not found or you lack access." };
+
+    try {
+      const remote = await fetchRemoteCandidate(conn.provider, conn.api_key, link.external_candidate_id);
+      const patch: { candidate_name?: string; candidate_email?: string } = {};
+      if (remote.name) patch.candidate_name = remote.name;
+      if (remote.email) patch.candidate_email = remote.email;
+      if (Object.keys(patch).length) {
+        await context.supabase.from("candidates").update(patch).eq("id", data.candidateId);
+      }
+      await context.supabase
+        .from("ats_imports")
+        .update({ last_synced_at: new Date().toISOString(), external_stage: remote.stage })
+        .eq("id", link.id);
+      await context.supabase
+        .from("ats_connections")
+        .update({ last_sync_at: new Date().toISOString(), status: "active", last_error: null })
+        .eq("id", conn.id);
+
+      await writeAudit(context.supabase, {
+        organization_id, actor_user_id: context.userId, action: "ats.candidate_synced",
+        target_type: "candidate", target_id: data.candidateId, metadata: { provider: conn.provider, stage: remote.stage },
+      });
+      return { ok: true, name: remote.name, email: remote.email, stage: remote.stage };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      await context.supabase.from("ats_connections").update({ status: "error", last_error: msg }).eq("id", conn.id);
+      return { ok: false, error: msg };
+    }
+  });
+
+function voiceNoteBody(screen: any, candidateName: string | null) {
+  const n = screen.structured_notes ?? {};
+  const lines: string[] = [];
+  lines.push(`RecruitIQ voice pre-screen${candidateName ? ` — ${candidateName}` : ""}`);
+  if (screen.summary) lines.push("", screen.summary);
+  if (n.recommendation) lines.push("", `Recommendation: ${n.recommendation}`);
+  const meta = [
+    n.compensation ? `Compensation: ${n.compensation}` : null,
+    n.start_date ? `Start date: ${n.start_date}` : null,
+    n.work_authorization ? `Work authorization: ${n.work_authorization}` : null,
+  ].filter(Boolean) as string[];
+  if (meta.length) lines.push("", ...meta);
+  if (Array.isArray(n.answers) && n.answers.length) {
+    lines.push("", "Q&A:");
+    for (const qa of n.answers) lines.push(`- ${qa.question}`, `  ${qa.answer}`);
+  }
+  if (screen.recruiter_notes) lines.push("", `Recruiter notes: ${screen.recruiter_notes}`);
+  return lines.join("\n");
+}
+
+/** Map a completed voice pre-screen onto the candidate's ATS record as a note. */
+export const pushVoiceScreenToAts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ screenId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { organization_id } = await ctx(context.supabase, context.userId);
+
+    const { data: screen } = await context.supabase
+      .from("voice_screens")
+      .select("id, candidate_id, status, summary, structured_notes, recruiter_notes, review_status")
+      .eq("id", data.screenId)
+      .maybeSingle();
+    if (!screen) return { ok: false, error: "Pre-screen not found" };
+    if (screen.status !== "complete") return { ok: false, error: "Finish the pre-screen before sending it to your ATS." };
+
+    const { data: link } = await context.supabase
+      .from("ats_imports")
+      .select("connection_id, provider, external_candidate_id")
+      .eq("candidate_id", screen.candidate_id)
+      .maybeSingle();
+    if (!link) return { ok: false, error: "This candidate was not imported from an ATS, so there is nothing to sync to." };
+
+    const { data: conn } = await context.supabase
+      .from("ats_connections")
+      .select("id, provider, api_key, config")
+      .eq("id", link.connection_id)
+      .maybeSingle();
+    if (!conn) return { ok: false, error: "ATS connection not found or you lack access." };
+
+    const { data: cand } = await context.supabase
+      .from("candidates").select("candidate_name").eq("id", screen.candidate_id).maybeSingle();
+
+    const body = voiceNoteBody(screen, cand?.candidate_name ?? null);
+    const auth = "Basic " + btoa(`${conn.api_key}:`);
+    const cfg = (conn.config ?? {}) as Record<string, any>;
+
+    try {
+      let externalNoteId: string | null = null;
+      if (conn.provider === "greenhouse") {
+        const onBehalfOf = cfg.on_behalf_of_user_id;
+        if (!onBehalfOf) throw new Error("Greenhouse needs an 'On-Behalf-Of' user id saved on the connection before notes can be created.");
+        const r = await fetch(`https://harvest.greenhouse.io/v1/candidates/${encodeURIComponent(link.external_candidate_id)}/activity_feed/notes`, {
+          method: "POST",
+          headers: { Authorization: auth, "Content-Type": "application/json", "On-Behalf-Of": String(onBehalfOf) },
+          body: JSON.stringify({ user_id: Number(onBehalfOf), body, visibility: "admin_only" }),
+        });
+        if (!r.ok) throw new Error(`Greenhouse ${r.status}: ${await r.text()}`);
+        const j: any = await r.json();
+        externalNoteId = j?.id ? String(j.id) : null;
+      } else if (conn.provider === "lever") {
+        const performAs = cfg.perform_as_user_id;
+        const qs = performAs ? `?perform_as=${encodeURIComponent(String(performAs))}` : "";
+        const r = await fetch(`https://api.lever.co/v1/opportunities/${encodeURIComponent(link.external_candidate_id)}/notes${qs}`, {
+          method: "POST", headers: { Authorization: auth, "Content-Type": "application/json" },
+          body: JSON.stringify({ value: body }),
+        });
+        if (!r.ok) throw new Error(`Lever ${r.status}: ${await r.text()}`);
+        const j: any = await r.json();
+        externalNoteId = j?.data?.id ? String(j.data.id) : null;
+      } else if (conn.provider === "ashby") {
+        const r = await fetch("https://api.ashbyhq.com/candidate.createNote", {
+          method: "POST", headers: { Authorization: auth, "Content-Type": "application/json" },
+          body: JSON.stringify({ candidateId: link.external_candidate_id, note: { type: "text/plain", value: body } }),
+        });
+        if (!r.ok) throw new Error(`Ashby ${r.status}: ${await r.text()}`);
+        const j: any = await r.json();
+        if (j?.success === false) throw new Error(`Ashby: ${JSON.stringify(j.errors ?? j)}`);
+        externalNoteId = j?.results?.id ? String(j.results.id) : null;
+      }
+
+      await context.supabase.from("voice_screens").update({
+        ats_synced_at: new Date().toISOString(),
+        ats_external_note_id: externalNoteId,
+        ats_sync_error: null,
+      }).eq("id", screen.id);
+
+      await writeAudit(context.supabase, {
+        organization_id, actor_user_id: context.userId, action: "voice_screen.synced_to_ats",
+        target_type: "voice_screen", target_id: screen.id, metadata: { provider: conn.provider },
+      });
+      return { ok: true, provider: conn.provider, externalNoteId };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      await context.supabase.from("voice_screens").update({ ats_sync_error: msg }).eq("id", screen.id);
+      return { ok: false, error: msg };
+    }
+  });
