@@ -354,7 +354,7 @@ export const syncAtsCandidate = createServerFn({ method: "POST" })
 
     try {
       const remote = await fetchRemoteCandidate(conn.provider, conn.api_key, link.external_candidate_id);
-      const patch: Record<string, unknown> = {};
+      const patch: { candidate_name?: string; candidate_email?: string } = {};
       if (remote.name) patch.candidate_name = remote.name;
       if (remote.email) patch.candidate_email = remote.email;
       if (Object.keys(patch).length) {
