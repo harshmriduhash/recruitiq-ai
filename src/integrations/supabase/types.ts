@@ -563,7 +563,7 @@ export type Database = {
           created_at?: string
           id?: string
           organization_id: string
-          role: Database["public"]["Enums"]["app_role"]
+          role?: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
