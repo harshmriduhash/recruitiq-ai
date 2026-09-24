@@ -6,6 +6,7 @@ import { getDashboardStats, getMyOrg } from "@/lib/org.functions";
 import { PageHeader } from "@/components/app-shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { OnboardingWalkthrough } from "@/components/onboarding-walkthrough";
 import { Briefcase, FileCheck2, Users, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/dashboard")({
