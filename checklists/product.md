@@ -16,6 +16,7 @@
 - ✅ 3-step wizard (`/app/onboarding`)
 - ✅ Enforced before `/app/dashboard`
 - ✅ Writes `organizations.onboarding_completed_at`
+- ✅ Post-onboarding dashboard walkthrough (4 steps, live progress, dismissible)
 
 ## App shell
 - ✅ Sidebar nav: Dashboard, Jobs, Candidates, Team, Integrations
@@ -33,7 +34,8 @@
 - ✅ Match breakdown UI (score, must-have gate, per-requirement evidence)
 - ✅ Live pipeline progress (polling)
 - ✅ Global search (`/app/candidates`) — hybrid FTS + embeddings
-- ✅ Voice pre-screen panel on candidate detail
+- ✅ Voice pre-screen panel on candidate detail (record, review, edit, send to ATS)
+- ✅ ATS origin card with one-click re-sync
 - 🚧 PDF export of match report
 
 ## Team
