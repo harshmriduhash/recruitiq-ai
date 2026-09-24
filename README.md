@@ -212,8 +212,25 @@ sequenceDiagram
 - PDF export of match reports
 - Job progress UI aggregated per requisition
 
-### 🚧 Pending (Turn 6 — Hardening)
-- Playwright E2E happy-path
+### ✅ Built (Turn 6 — Sync, review, walkthrough, E2E)
+- **Per-candidate ATS sync** — `syncAtsCandidate` re-pulls name / email / current stage
+  from Greenhouse, Lever, or Ashby and records `last_synced_at` + `external_stage`
+  on `ats_imports`; surfaced as an "Imported from …" card on candidate detail
+- **Voice → ATS mapping** — `pushVoiceScreenToAts` renders the pre-screen summary,
+  recommendation, Q&A, compensation / start date / work authorization and recruiter
+  notes into a provider note
+  (Greenhouse `activity_feed/notes`, Lever `opportunities/:id/notes`, Ashby `candidate.createNote`);
+  sync state stored on `voice_screens.ats_synced_at` / `ats_external_note_id` / `ats_sync_error`
+- **Voice review & edit** — recruiters can rewrite the AI summary, add their own notes,
+  override the recommendation, and mark the screen reviewed
+  (`review_status`, `reviewed_by`, `reviewed_at`, audit-logged)
+- **Onboarding walkthrough** — dismissible 4-step "get to your first match" guide on the
+  dashboard, driven by live org stats and persisted in `localStorage`
+- **Playwright E2E** — `e2e/public-journey.spec.ts` (marketing routes, SEO metadata,
+  sitemap/robots, auth gate) and `e2e/recruiter-flow.spec.ts` (sign-in, job creation +
+  requirement extraction, integrations, global search); run with `bun run test:e2e`
+
+### 🚧 Pending (Hardening)
 - Scoring engine unit tests (deterministic — highest priority)
 - Stripe billing + per-plan quotas
 - README screenshots (post-first-tenant)

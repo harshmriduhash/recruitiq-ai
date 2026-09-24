@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, MinusCircle } from "lucide-react";
 import { VoiceScreenPanel } from "@/components/voice-screen-panel";
+import { AtsSyncCard } from "@/components/ats-sync-card";
 
 export const Route = createFileRoute("/_authenticated/app/candidates/$id")({
   head: () => ({ meta: [{ title: "Candidate — RecruitIQ" }] }),
@@ -41,6 +42,7 @@ function CandidateDetail() {
         action={evalRow && <ScorePill score={Number(evalRow.overall_score)} confidence={evalRow.overall_confidence} />}
       />
       <div className="p-8 space-y-6 max-w-4xl">
+        <AtsSyncCard candidateId={id} onSynced={() => refetch()} />
         {!evalRow && run && (
           <Card className="p-6">
             <div className="text-sm font-medium mb-2">{run.current_stage}</div>
