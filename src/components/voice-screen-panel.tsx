@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { createVoiceScreen, finalizeVoiceScreen, listVoiceScreens, getVoiceRecordingUrl } from "@/lib/voice.functions";
+import { createVoiceScreen, finalizeVoiceScreen, listVoiceScreens, getVoiceRecordingUrl, updateVoiceScreen } from "@/lib/voice.functions";
+import { pushVoiceScreenToAts } from "@/lib/ats.functions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic, Square, Loader2, Play, CheckCircle2, AlertCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { Mic, Square, Loader2, Play, CheckCircle2, AlertCircle, Pencil, Send } from "lucide-react";
 
 export function VoiceScreenPanel({ candidateId }: { candidateId: string }) {
   const listFn = useServerFn(listVoiceScreens);
