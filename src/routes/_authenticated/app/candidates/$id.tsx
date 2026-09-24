@@ -42,6 +42,7 @@ function CandidateDetail() {
         action={evalRow && <ScorePill score={Number(evalRow.overall_score)} confidence={evalRow.overall_confidence} />}
       />
       <div className="p-8 space-y-6 max-w-4xl">
+        <AtsSyncCard candidateId={id} onSynced={() => refetch()} />
         {!evalRow && run && (
           <Card className="p-6">
             <div className="text-sm font-medium mb-2">{run.current_stage}</div>
