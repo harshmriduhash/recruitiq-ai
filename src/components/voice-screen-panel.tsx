@@ -41,7 +41,7 @@ export function VoiceScreenPanel({ candidateId }: { candidateId: string }) {
             No pre-screens yet.
           </p>
         )}
-        {(screens ?? []).map((s: any) => <ScreenRow key={s.id} screen={s} />)}
+        {(screens ?? []).map((s: any) => <ScreenRow key={s.id} screen={s} onChange={() => refetch()} />)}
       </div>
     </Card>
   );
