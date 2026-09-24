@@ -3,7 +3,7 @@
 ## Build & CI
 - ✅ TypeScript strict mode
 - ✅ `bunx tsgo --noEmit` clean
-- 🚧 Playwright E2E happy path
+- ✅ Playwright E2E (`bun run test:e2e`) — public journey + authenticated recruiter flow
 - 🚧 Scoring engine unit tests
 
 ## Deploy
