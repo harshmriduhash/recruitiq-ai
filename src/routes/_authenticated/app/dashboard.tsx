@@ -38,6 +38,7 @@ function DashboardPage() {
         }
       />
       <div className="p-8 space-y-8">
+        <OnboardingWalkthrough stats={stats as any} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard label="Open jobs" value={stats?.jobs ?? 0} icon={<Briefcase className="size-5" />} to="/app/jobs" />
           <StatCard label="Candidates" value={stats?.candidates ?? 0} icon={<Users className="size-5" />} to="/app/candidates" />
