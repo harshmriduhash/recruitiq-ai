@@ -6,7 +6,9 @@ import { PageHeader } from "@/components/app-shell";
 import { ScorePill } from "@/routes/_authenticated/app/dashboard";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, MinusCircle } from "lucide-react";
+import { CheckCircle2, XCircle, MinusCircle, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { pipelineErrorMessage } from "@/lib/pipeline-errors";
 import { VoiceScreenPanel } from "@/components/voice-screen-panel";
 import { AtsSyncCard } from "@/components/ats-sync-card";
 
@@ -39,17 +41,17 @@ function CandidateDetail() {
       <PageHeader
         title={c.candidate_name || "Anonymous candidate"}
         description={<span>{c.candidate_email ?? "no email"} · <Link to="/app/jobs/$id" params={{ id: c.job_requisition_id }} className="text-violet-300">{c.job_requisitions?.title}</Link></span> as any}
-        action={evalRow && <ScorePill score={Number(evalRow.overall_score)} confidence={evalRow.overall_confidence} />}
+        action={evalRow && (<div className="flex items-center gap-3"><Button size="sm" variant="outline" className="print:hidden" onClick={() => window.print()}><Download className="size-4 mr-1" /> Export PDF</Button><ScorePill score={Number(evalRow.overall_score)} confidence={evalRow.overall_confidence} /></div>)}
       />
       <div className="p-8 space-y-6 max-w-4xl">
-        <AtsSyncCard candidateId={id} onSynced={() => refetch()} />
+        <div className="print:hidden"><AtsSyncCard candidateId={id} onSynced={() => refetch()} /></div>
         {!evalRow && run && (
           <Card className="p-6">
             <div className="text-sm font-medium mb-2">{run.current_stage}</div>
             <div className="h-2 rounded-full bg-white/5 overflow-hidden">
               <div className="h-full bg-gradient-to-r from-violet-500 to-cyan-400 transition-all" style={{ width: `${run.progress ?? 0}%` }} />
             </div>
-            {run.status === "failed" && <p className="text-sm text-rose-300 mt-3">{run.error_message}</p>}
+            {run.status === "failed" && <p className="text-sm text-rose-300 mt-3">{pipelineErrorMessage(run.error_code, run.error_message)}</p>}
           </Card>
         )}
 
@@ -97,7 +99,7 @@ function CandidateDetail() {
           </>
         )}
 
-        <VoiceScreenPanel candidateId={id} />
+        <div className="print:hidden"><VoiceScreenPanel candidateId={id} /></div>
       </div>
     </>
   );

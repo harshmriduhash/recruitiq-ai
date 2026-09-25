@@ -95,3 +95,89 @@ export const updateJobStatus = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
+export const updateJob = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        title: z.string().trim().min(1).max(200),
+        raw_jd_text: z.string().trim().min(50).max(20000),
+        reextract: z.boolean().optional(),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const organization_id = await orgIdFor(context.supabase, context.userId);
+    const patch: Record<string, unknown> = { title: data.title, raw_jd_text: data.raw_jd_text };
+    if (data.reextract) patch.extracted_requirements = await extractRequirements(data.raw_jd_text);
+    const { error } = await context.supabase.from("job_requisitions").update(patch as never).eq("id", data.id);
+    if (error) throw error;
+    await writeAudit(context.supabase, {
+      organization_id,
+      actor_user_id: context.userId,
+      action: "job.updated",
+      target_type: "job_requisition",
+      target_id: data.id,
+      metadata: { reextracted: !!data.reextract },
+    });
+    return { ok: true };
+  });
+
+export const deleteJob = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const organization_id = await orgIdFor(context.supabase, context.userId);
+    const { error } = await context.supabase
+      .from("job_requisitions")
+      .update({ deleted_at: new Date().toISOString(), status: "archived" })
+      .eq("id", data.id);
+    if (error) throw error;
+    await writeAudit(context.supabase, {
+      organization_id,
+      actor_user_id: context.userId,
+      action: "job.deleted",
+      target_type: "job_requisition",
+      target_id: data.id,
+      metadata: {},
+    });
+    return { ok: true };
+  });
+
+const STOP = new Set(["senior", "junior", "lead", "staff", "principal", "the", "and", "for", "with", "remote", "sr", "jr"]);
+
+/** Past jobs with overlapping title keywords — used to reuse rubrics for repeat roles. */
+export const findSimilarJobs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ title: z.string().trim().min(2).max(200), excludeId: z.string().uuid().optional() }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const words = data.title
+      .toLowerCase()
+      .split(/[^a-z0-9+#.]+/)
+      .filter((w) => w.length > 2 && !STOP.has(w))
+      .slice(0, 5);
+    if (!words.length) return [];
+    let q = context.supabase
+      .from("job_requisitions")
+      .select("id, title, created_at, extracted_requirements")
+      .is("deleted_at", null)
+      .or(words.map((w) => `title.ilike.%${w.replace(/[,()%]/g, "")}%`).join(","))
+      .order("created_at", { ascending: false })
+      .limit(10);
+    if (data.excludeId) q = q.neq("id", data.excludeId);
+    const { data: rows, error } = await q;
+    if (error) throw error;
+    return (rows ?? [])
+      .map((j) => {
+        const t = j.title.toLowerCase();
+        const overlap = words.filter((w) => t.includes(w)).length;
+        const reqs = ((j.extracted_requirements as { requirements?: { label: string; must_have: boolean }[] })?.requirements ?? []);
+        return { id: j.id, title: j.title, created_at: j.created_at, overlap, requirements: reqs.slice(0, 6) };
+      })
+      .sort((a, b) => b.overlap - a.overlap)
+      .slice(0, 3);
+  });

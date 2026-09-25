@@ -89,7 +89,8 @@ export const startCandidatePipeline = createServerFn({ method: "POST" })
       return { candidateId: candidate.id, pipelineRunId: run.id, evaluationId };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      return { candidateId: candidate.id, pipelineRunId: run.id, error: message };
+      const errorCode = (err as { code?: string })?.code ?? "PIPELINE_ERROR";
+      return { candidateId: candidate.id, pipelineRunId: run.id, error: message, errorCode };
     }
   });
 

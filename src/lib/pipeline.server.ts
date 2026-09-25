@@ -138,12 +138,22 @@ export async function runFullPipeline(args: {
     await updateRun({ status: "extracting", current_stage: "Downloading resume", progress: 5, started_at: new Date().toISOString() });
 
     // 1) Download PDF from storage
-    const { data: blob, error: dlErr } = await supabase.storage.from("resumes").download(storagePath);
-    if (dlErr || !blob) throw new Error(`Storage download failed: ${dlErr?.message}`);
-    const buf = await blob.arrayBuffer();
+    const buf = await withRetry("STORAGE_DOWNLOAD_FAILED", async () => {
+      const { data: blob, error: dlErr } = await supabase.storage.from("resumes").download(storagePath);
+      if (dlErr || !blob) throw new Error(`Storage download failed: ${dlErr?.message}`);
+      return blob.arrayBuffer();
+    });
 
     await updateRun({ current_stage: "Extracting resume text", progress: 15 });
-    const rawText = await extractPdfText(buf);
+    let rawText: string;
+    try {
+      rawText = await extractPdfText(buf);
+    } catch {
+      throw new PipelineError("PDF_UNREADABLE", "We couldn't read this PDF.");
+    }
+    if (!rawText || rawText.trim().length < 80) {
+      throw new PipelineError("PDF_NO_TEXT", "This resume has almost no readable text.");
+    }
     const sanitized = sanitizeResumeText(rawText);
     const forScoring = stripBiasSignals(sanitized);
 
@@ -155,13 +165,13 @@ export async function runFullPipeline(args: {
       .select("title, extracted_requirements")
       .eq("id", jobRequisitionId)
       .single();
-    if (jobErr || !job) throw new Error("Job requisition not found");
+    if (jobErr || !job) throw new PipelineError("JOB_NOT_FOUND", "Job requisition not found");
     const reqs = ((job.extracted_requirements as { requirements?: Requirement[] })?.requirements ?? []) as Requirement[];
-    if (reqs.length === 0) throw new Error("No requirements to evaluate against");
+    if (reqs.length === 0) throw new PipelineError("NO_REQUIREMENTS", "No requirements to evaluate against");
 
     // 3) Agent 2 — evidence
     await updateRun({ current_stage: "Finding evidence in resume", progress: 35 });
-    const rawEvidence = await findEvidence(reqs, forScoring);
+    const rawEvidence = await withRetry("EVIDENCE_FAILED", () => findEvidence(reqs, forScoring));
     const verified = verifyEvidence(rawEvidence, sanitized);
 
     // 4) Deterministic scoring
@@ -170,7 +180,7 @@ export async function runFullPipeline(args: {
 
     // 5) Agent 4 — summary
     await updateRun({ status: "explaining", current_stage: "Writing summary", progress: 80 });
-    const summary = await summarize(job.title, breakdown);
+    const summary = await withRetry("SUMMARY_FAILED", () => summarize(job.title, breakdown));
 
     // 6) Persist evaluation
     const { data: evalRow, error: evalErr } = await supabase
@@ -214,8 +224,30 @@ export async function runFullPipeline(args: {
     return { evaluationId: evalRow.id };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error("[pipeline] failed:", err);
-    await updateRun({ status: "failed", error_code: "PIPELINE_ERROR", error_message: message, completed_at: new Date().toISOString() });
+    const code = err instanceof PipelineError ? err.code : "PIPELINE_ERROR";
+    console.error("[pipeline] failed:", code, err);
+    await updateRun({ status: "failed", error_code: code, error_message: message, completed_at: new Date().toISOString() });
     throw err;
   }
+}
+
+export class PipelineError extends Error {
+  constructor(public code: string, message: string) {
+    super(message);
+  }
+}
+
+/** Retry an async step with exponential backoff (max 3 attempts). */
+async function withRetry<T>(code: string, fn: () => Promise<T>, attempts = 3): Promise<T> {
+  let last: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      last = e;
+      if (e instanceof PipelineError) throw e;
+      if (i < attempts - 1) await new Promise((r) => setTimeout(r, 500 * 2 ** i));
+    }
+  }
+  throw new PipelineError(code, last instanceof Error ? last.message : String(last));
 }
