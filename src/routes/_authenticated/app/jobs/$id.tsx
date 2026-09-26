@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useRef, useState } from "react";
 import { getJob } from "@/lib/jobs.functions";
+import { JobManageActions, SimilarJobsCard } from "@/components/job-manage";
+import { pipelineErrorMessage } from "@/lib/pipeline-errors";
 import { createResumeUploadUrl, startCandidatePipeline } from "@/lib/candidates.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/app-shell";
@@ -38,7 +40,7 @@ function JobDetail() {
       if (upErr) throw upErr;
       toast.info("Resume uploaded — running 4-agent pipeline…");
       const res = await startFn({ data: { jobRequisitionId: id, storagePath: path, candidateName: name, candidateEmail: email } });
-      if (res.error) toast.error(`Pipeline failed: ${res.error}`);
+      if (res.error) toast.error(pipelineErrorMessage((res as any).errorCode, res.error));
       else toast.success("Match evaluation complete");
       setName(""); setEmail("");
       if (fileRef.current) fileRef.current.value = "";
@@ -57,7 +59,7 @@ function JobDetail() {
 
   return (
     <>
-      <PageHeader title={job.title} description={`${reqs.length} requirements · ${job.status}`} />
+      <PageHeader title={job.title} description={`${reqs.length} requirements · ${job.status}`} action={<JobManageActions job={job as any} onSaved={() => refetch()} />} />
       <div className="p-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card className="p-6">
@@ -113,6 +115,7 @@ function JobDetail() {
         </div>
 
         <div className="space-y-6">
+          <SimilarJobsCard title={job.title} excludeId={job.id} />
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-3">Add candidate</h2>
             <div className="space-y-3">

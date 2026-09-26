@@ -30,3 +30,11 @@
 - ✅ `pipeline_runs` tracks stage + progress + error
 - ✅ `audit_logs` records candidate uploads, voice screens, ATS syncs
 - 🚧 LLM-as-judge eval harness (post-MVP)
+
+## Reliability
+- ✅ 3× retry with exponential backoff on storage download, evidence and summary steps
+- ✅ Error taxonomy: `PDF_NO_TEXT`, `PDF_UNREADABLE`, `STORAGE_DOWNLOAD_FAILED`, `EVIDENCE_FAILED`, `SUMMARY_FAILED`, `JOB_NOT_FOUND`, `NO_REQUIREMENTS`
+- ✅ Similar past jobs (keyword overlap) to reuse rubrics
+- ⏳ Semantic job similarity via requirement embeddings
+- ⏳ Fallback model when the primary model is unavailable (PRD §9.6)
+- ⏳ Scoring engine unit tests (PRD §10.5)

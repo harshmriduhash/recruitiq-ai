@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createJob } from "@/lib/jobs.functions";
 import { completeOnboarding } from "@/lib/org.functions";
+import { createResumeUploadUrl, startCandidatePipeline } from "@/lib/candidates.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { pipelineErrorMessage } from "@/lib/pipeline-errors";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,6 +31,31 @@ function OnboardingPage() {
   const createFn = useServerFn(createJob);
   const completeFn = useServerFn(completeOnboarding);
   const navigate = useNavigate();
+  const uploadFn = useServerFn(createResumeUploadUrl);
+  const startFn = useServerFn(startCandidatePipeline);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [scoring, setScoring] = useState(false);
+
+  async function scoreResume(file: Blob, filename: string, candidateName?: string) {
+    if (!jobId) return;
+    setScoring(true);
+    try {
+      const { path, token } = await uploadFn({ data: { jobRequisitionId: jobId, filename } });
+      const { error } = await supabase.storage.from("resumes").uploadToSignedUrl(path, token, file, { contentType: "application/pdf" });
+      if (error) throw error;
+      const res = await startFn({ data: { jobRequisitionId: jobId, storagePath: path, candidateName } });
+      if (res.error) toast.error(pipelineErrorMessage((res as any).errorCode, res.error));
+      navigate({ to: "/app/candidates/$id", params: { id: res.candidateId } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+      setScoring(false);
+    }
+  }
+
+  async function trySample() {
+    const blob = await (await fetch("/sample-resume.pdf")).blob();
+    await scoreResume(blob, "sample-resume.pdf", "Alex Morgan (sample)");
+  }
 
   async function handleCreate() {
     setCreating(true);
@@ -35,7 +63,9 @@ function OnboardingPage() {
       const { id } = await createFn({ data: { title, raw_jd_text: jd } });
       await completeFn();
       toast.success("Job created — requirements extracted");
-      navigate({ to: "/app/jobs/$id", params: { id } });
+      setJobId(id);
+      setStep(3);
+      setCreating(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to create job");
       setCreating(false);
@@ -47,7 +77,7 @@ function OnboardingPage() {
       <PageHeader title="Set up your first job" description="Paste a JD. We'll extract requirements and set up your scoring rubric." />
       <div className="p-8 max-w-3xl">
         <div className="flex items-center gap-2 mb-8">
-          {[0, 1, 2].map((i) => (
+          {[0, 1, 2, 3].map((i) => (
             <div key={i} className={`h-1.5 flex-1 rounded-full ${i <= step ? "bg-violet-500" : "bg-white/10"}`} />
           ))}
         </div>
@@ -107,6 +137,26 @@ function OnboardingPage() {
                 {creating ? <><Loader2 className="size-4 mr-2 animate-spin" /> Extracting…</> : "Extract & create job"}
               </Button>
             </div>
+          </Card>
+        )}
+        {step === 3 && jobId && (
+          <Card className="p-6 space-y-4">
+            <h2 className="text-xl font-semibold">Score your first candidate</h2>
+            <p className="text-sm text-muted-foreground">
+              Upload a resume (PDF) or try a sample one. You'll see the full match report with cited evidence in about 15 seconds.
+            </p>
+            {scoring ? (
+              <div className="flex items-center gap-2 text-sm"><Loader2 className="size-4 animate-spin" /> Running the 4-step match — reading, finding evidence, scoring, summarizing…</div>
+            ) : (
+              <div className="flex flex-wrap gap-3">
+                <label className="inline-flex">
+                  <input type="file" accept="application/pdf,.pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) scoreResume(f, f.name); }} />
+                  <span className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground cursor-pointer hover:bg-primary/90">Upload a resume</span>
+                </label>
+                <Button variant="outline" onClick={trySample}>Try with sample resume</Button>
+                <Button variant="ghost" onClick={() => navigate({ to: "/app/jobs/$id", params: { id: jobId } })}>Skip for now</Button>
+              </div>
+            )}
           </Card>
         )}
       </div>
