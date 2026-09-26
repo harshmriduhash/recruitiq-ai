@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { SimilarJobsCard } from "@/components/job-manage";
 
 export const Route = createFileRoute("/_authenticated/app/jobs/new")({
   head: () => ({ meta: [{ title: "New job — RecruitIQ" }] }),
@@ -53,6 +54,7 @@ function NewJobPage() {
             </Button>
           </div>
         </Card>
+        <div className="mt-6"><SimilarJobsCard title={title} /></div>
       </div>
     </>
   );
