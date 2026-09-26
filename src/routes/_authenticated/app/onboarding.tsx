@@ -52,7 +52,7 @@ function OnboardingPage() {
     }
   }
 
-  async function useSample() {
+  async function trySample() {
     const blob = await (await fetch("/sample-resume.pdf")).blob();
     await scoreResume(blob, "sample-resume.pdf", "Alex Morgan (sample)");
   }
@@ -153,7 +153,7 @@ function OnboardingPage() {
                   <input type="file" accept="application/pdf,.pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) scoreResume(f, f.name); }} />
                   <span className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground cursor-pointer hover:bg-primary/90">Upload a resume</span>
                 </label>
-                <Button variant="outline" onClick={useSample}>Try with sample resume</Button>
+                <Button variant="outline" onClick={trySample}>Try with sample resume</Button>
                 <Button variant="ghost" onClick={() => navigate({ to: "/app/jobs/$id", params: { id: jobId } })}>Skip for now</Button>
               </div>
             )}
