@@ -55,7 +55,7 @@ export function SiteNav() {
         <div className="hidden items-center gap-2 md:flex">
           {signedIn === null ? null : signedIn ? (
             <Button asChild className="bg-brand-gradient text-primary-foreground hover:opacity-90">
-              <Link to="/">Open app</Link>
+              <Link to="/app/dashboard">Open app</Link>
             </Button>
           ) : (
             <>
