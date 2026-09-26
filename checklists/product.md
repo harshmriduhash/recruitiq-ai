@@ -16,6 +16,8 @@
 - ✅ 3-step wizard (`/app/onboarding`)
 - ✅ Enforced before `/app/dashboard`
 - ✅ Writes `organizations.onboarding_completed_at`
+- ✅ Onboarding ends on a real match report (upload or sample resume)
+- ✅ Non-blocking email verification banner with resend
 - ✅ Post-onboarding dashboard walkthrough (4 steps, live progress, dismissible)
 
 ## App shell
@@ -28,6 +30,8 @@
 - ✅ Requirement-extraction agent (Gemini 3 Flash → JSON rubric)
 - ✅ Job detail with rubric + candidate list
 - ✅ Per-job progress aggregation
+- ✅ Edit job (optional requirement re-extraction) + soft delete
+- ✅ Similar past jobs on new-job and job pages
 
 ## Candidates
 - ✅ Upload resume (signed upload URL, org-scoped path)
@@ -36,7 +40,8 @@
 - ✅ Global search (`/app/candidates`) — hybrid FTS + embeddings
 - ✅ Voice pre-screen panel on candidate detail (record, review, edit, send to ATS)
 - ✅ ATS origin card with one-click re-sync
-- 🚧 PDF export of match report
+- ✅ PDF export of match report (print-optimised)
+- ✅ Specific, actionable pipeline error messages
 
 ## Team
 - ✅ Invite by email (owner/admin only)
@@ -46,3 +51,9 @@
 - ✅ `prefers-reduced-motion` respected in `styles.css`
 - ✅ Focus rings on interactive controls
 - ✅ Semantic headings; single H1 per route
+
+## Settings & account (pending)
+- ⏳ `/app/settings/profile`, `/app/settings/billing`, `/app/settings/api-keys`
+- ⏳ Password strength meter (sign-up + reset)
+- ⏳ Account deletion with re-auth + 14-day grace period
+- ⏳ Subscription cancellation → read-only free tier + exit survey

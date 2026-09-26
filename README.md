@@ -230,9 +230,26 @@ sequenceDiagram
   sitemap/robots, auth gate) and `e2e/recruiter-flow.spec.ts` (sign-in, job creation +
   requirement extraction, integrations, global search); run with `bun run test:e2e`
 
-### 🚧 Pending (Hardening)
-- Scoring engine unit tests (deterministic — highest priority)
-- Stripe billing + per-plan quotas
+### ✅ Built (Turn 7 — Finishing the half-built pieces)
+- **Job edit & delete** — edit title/description with optional requirement re-extraction;
+  soft delete (`deleted_at`) keeps match reports for audit; both audit-logged (`job.updated`, `job.deleted`)
+- **Onboarding → first match report** — step 4 uploads a resume or runs a bundled sample resume
+  and lands directly on the full breakdown (PRD §5.1 "valuable within seconds")
+- **Email verification banner** — non-blocking reminder with "Resend email" (PRD §5.1)
+- **Similar past jobs** — keyword-overlap lookup surfaced on new-job and job pages to reuse rubrics (PRD §9.2b)
+- **Pipeline retries + error taxonomy** — storage, evidence and summary steps retry 3× with exponential backoff;
+  failures carry specific codes (`PDF_NO_TEXT`, `PDF_UNREADABLE`, `EVIDENCE_FAILED`, …) mapped to helpful messages (PRD §7.5, §7.8)
+- **PDF export of match reports** — print-optimised report (sidebar, voice and ATS panels hidden) via "Export PDF"
+
+### 🚧 Pending (MVP launch blockers)
+- **Billing** — Stripe checkout, Starter $99 / Growth $299, billing page, cancel → read-only free tier with exit survey (PRD §5.4, §6.5)
+- **Plan quotas & rate limits** — enforce `monthly_candidate_quota` before scoring; per-plan request limits (PRD §7.7)
+- **Settings** — `/app/settings/profile`, `/app/settings/billing`, `/app/settings/api-keys` (PRD §4)
+- **Account deletion** — re-auth, warning, 14-day soft-delete grace, anonymised audit retention (PRD §5.2)
+- **Password strength meter** on sign-up and reset (PRD §5.2)
+- **Scoring engine unit tests** (PRD §10.5 — highest priority)
+- **Authenticated E2E run** — spec written; needs a test account (`E2E_USER` / `E2E_PASS`)
+- **Semantic job similarity** — upgrade keyword lookup to embeddings of job requirements
 - README screenshots (post-first-tenant)
 
 ### 🔭 Next (post-MVP)
@@ -240,6 +257,9 @@ sequenceDiagram
 - **SAML SSO** for Scale tier
 - **BullMQ-backed pipeline** for high-volume batch imports
 - **Audit-log export UI** (table already writes, export deferred)
+- **Fallback model** when the primary AI model is unavailable (PRD §9.6)
+- **Error monitoring & structured request tracing** (PRD §7.8, §10.3)
+- **Custom domain + production-readiness gate** (PRD §10.6)
 - **LLM-as-judge eval infra** (PRD §9.5)
 - **PostHog analytics funnel**
 
