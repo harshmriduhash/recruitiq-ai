@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Sparkles, Loader2 } from "lucide-react";
+import { PasswordStrength } from "@/components/password-strength";
 
 const searchSchema = z.object({
   mode: z.enum(["signin", "signup"]).default("signin").catch("signin"),
@@ -41,6 +42,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">(search.mode);
   const [loading, setLoading] = useState(false);
+  const [pw, setPw] = useState("");
   const [googleLoading, setGoogleLoading] = useState(false);
 
   useEffect(() => setMode(search.mode), [search.mode]);
@@ -167,9 +169,10 @@ function AuthPage() {
                 minLength={mode === "signup" ? 8 : 1}
                 maxLength={72}
                 autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                onChange={(e) => setPw(e.target.value)}
               />
               {mode === "signup" && (
-                <p className="mt-1 text-[10px] text-muted-foreground">At least 8 characters. Longer is better.</p>
+                <><PasswordStrength value={pw} /><p className="mt-1 text-[10px] text-muted-foreground">At least 8 characters. Longer is better.</p></>
               )}
             </div>
 

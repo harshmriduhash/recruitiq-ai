@@ -4,7 +4,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,9 +39,9 @@ function SettingsPage() {
 
   if (isLoading || !data)
     return (
-      <AppShell>
+      <>
         <div className="p-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
-      </AppShell>
+      </>
     );
 
   const { profile, org } = data;
@@ -54,7 +53,7 @@ function SettingsPage() {
     : null;
 
   return (
-    <AppShell>
+    <>
       <div className="mx-auto max-w-3xl space-y-6 p-8">
         <h1 className="text-2xl font-bold">Settings</h1>
 
@@ -154,6 +153,6 @@ function SettingsPage() {
           )}
         </section>
       </div>
-    </AppShell>
+    </>
   );
 }

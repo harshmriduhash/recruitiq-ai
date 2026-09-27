@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
+import { PasswordStrength } from "@/components/password-strength";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ const schema = z.object({ password: z.string().min(8, "At least 8 characters").m
 function ResetPassword() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [pw, setPw] = useState("");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -60,7 +62,8 @@ function ResetPassword() {
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div>
               <Label htmlFor="password">New password</Label>
-              <Input id="password" name="password" type="password" required minLength={8} maxLength={72} autoComplete="new-password" />
+              <Input id="password" name="password" type="password" required minLength={8} maxLength={72} autoComplete="new-password" onChange={(e) => setPw(e.target.value)} />
+              <PasswordStrength value={pw} />
             </div>
             <Button type="submit" disabled={loading} className="w-full bg-brand-gradient text-primary-foreground">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
