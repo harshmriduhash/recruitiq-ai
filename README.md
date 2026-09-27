@@ -241,13 +241,17 @@ sequenceDiagram
   failures carry specific codes (`PDF_NO_TEXT`, `PDF_UNREADABLE`, `EVIDENCE_FAILED`, …) mapped to helpful messages (PRD §7.5, §7.8)
 - **PDF export of match reports** — print-optimised report (sidebar, voice and ATS panels hidden) via "Export PDF"
 
-### 🚧 Pending (MVP launch blockers)
-- **Billing** — Stripe checkout, Starter $99 / Growth $299, billing page, cancel → read-only free tier with exit survey (PRD §5.4, §6.5)
-- **Plan quotas & rate limits** — enforce `monthly_candidate_quota` before scoring; per-plan request limits (PRD §7.7)
-- **Settings** — `/app/settings/profile`, `/app/settings/billing`, `/app/settings/api-keys` (PRD §4)
-- **Account deletion** — re-auth, warning, 14-day soft-delete grace, anonymised audit retention (PRD §5.2)
+### ✅ Built (Turn 8 — Launch readiness)
+- **Plan quotas** — `consume_candidate_quota` enforces `monthly_candidate_quota` before every scoring run, auto-resets monthly (PRD §7.7)
+- **Settings** (`/app/settings`) — profile edit, plan & usage meter, account deletion
+- **Account deletion** — password re-auth, 14-day soft-delete grace with "Keep my account", audit-logged (PRD §5.2)
 - **Password strength meter** on sign-up and reset (PRD §5.2)
-- **Scoring engine unit tests** (PRD §10.5 — highest priority)
+- **Scoring engine unit tests** — must-have gating, weights, excerpt verification + 500-case property test; run with `bun run test` (PRD §10.5)
+- **Fallback model** — pipeline retries on `openai/gpt-5-mini` if Gemini is unavailable (PRD §9.6)
+
+### 🚧 Pending (MVP launch blockers)
+- **Billing** — Stripe checkout, Starter $99 / Growth $299, cancel → read-only free tier with exit survey (PRD §5.4, §6.5) — *blocked: built-in payments need a paid Lovable workspace plan*
+- **Per-plan request rate limits** (PRD §7.7)
 - **Authenticated E2E run** — spec written; needs a test account (`E2E_USER` / `E2E_PASS`)
 - **Semantic job similarity** — upgrade keyword lookup to embeddings of job requirements
 - README screenshots (post-first-tenant)
@@ -257,7 +261,6 @@ sequenceDiagram
 - **SAML SSO** for Scale tier
 - **BullMQ-backed pipeline** for high-volume batch imports
 - **Audit-log export UI** (table already writes, export deferred)
-- **Fallback model** when the primary AI model is unavailable (PRD §9.6)
 - **Error monitoring & structured request tracing** (PRD §7.8, §10.3)
 - **Custom domain + production-readiness gate** (PRD §10.6)
 - **LLM-as-judge eval infra** (PRD §9.5)
