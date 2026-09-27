@@ -24,7 +24,6 @@ export type ExtractedRequirements = z.infer<typeof RequirementsSchema>;
 
 // AGENT 1 — Requirement extraction from a raw job description.
 export async function extractRequirements(jdText: string): Promise<ExtractedRequirements> {
-  const gateway = getGateway();
   const { output } = await generateWithFallback({
     output: Output.object({
       schema: RequirementsSchema,
@@ -63,7 +62,6 @@ async function findEvidence(
   requirements: Requirement[],
   resumeText: string,
 ): Promise<Evidence[]> {
-  const gateway = getGateway();
   const reqList = requirements
     .map((r) => `- [${r.id}] ${r.label} ${r.must_have ? "(MUST-HAVE)" : ""} weight=${r.weight}`)
     .join("\n");
@@ -93,7 +91,6 @@ async function summarize(
   jobTitle: string,
   breakdown: ReturnType<typeof computeScore>,
 ): Promise<string> {
-  const gateway = getGateway();
   const wins = breakdown.requirement_breakdown.filter((r) => r.present === "yes").map((r) => r.label);
   const gaps = breakdown.requirement_breakdown.filter((r) => r.present === "no" && r.must_have).map((r) => r.label);
   const partials = breakdown.requirement_breakdown.filter((r) => r.present === "partial").map((r) => r.label);
