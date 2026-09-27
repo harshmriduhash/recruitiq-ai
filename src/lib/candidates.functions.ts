@@ -40,6 +40,12 @@ export const startCandidatePipeline = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const organization_id = await orgIdFor(context.supabase, context.userId);
+    const { error: qErr } = await context.supabase.rpc("consume_candidate_quota", { _org_id: organization_id });
+    if (qErr) {
+      if (qErr.message.includes("QUOTA_EXCEEDED"))
+        throw new Error("Monthly candidate limit reached for your plan. Upgrade in Settings or wait for the next period.");
+      throw qErr;
+    }
     const { data: candidate, error: cErr } = await context.supabase
       .from("candidates")
       .insert({

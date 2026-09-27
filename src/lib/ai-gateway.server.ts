@@ -18,5 +18,6 @@ export function getGateway() {
 export const MODELS = {
   fast: "google/gemini-3-flash-preview",
   pro: "google/gemini-3-pro-preview",
+  fallback: "openai/gpt-5-mini",
   embed: "openai/text-embedding-3-small",
 } as const;
