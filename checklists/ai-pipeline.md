@@ -36,5 +36,5 @@
 - ✅ Error taxonomy: `PDF_NO_TEXT`, `PDF_UNREADABLE`, `STORAGE_DOWNLOAD_FAILED`, `EVIDENCE_FAILED`, `SUMMARY_FAILED`, `JOB_NOT_FOUND`, `NO_REQUIREMENTS`
 - ✅ Similar past jobs (keyword overlap) to reuse rubrics
 - ⏳ Semantic job similarity via requirement embeddings
-- ⏳ Fallback model when the primary model is unavailable (PRD §9.6)
-- ⏳ Scoring engine unit tests (PRD §10.5)
+- ✅ Fallback model (gpt-5-mini) when the primary model fails (PRD §9.6)
+- ✅ Scoring engine unit tests incl. property-based (`bun run test`)

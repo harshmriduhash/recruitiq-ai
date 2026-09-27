@@ -5,7 +5,7 @@
 - ✅ `bunx tsgo --noEmit` clean
 - ✅ Playwright E2E — public journey
 - 🚧 Authenticated recruiter E2E — written, needs `E2E_USER` / `E2E_PASS` test account
-- 🚧 Scoring engine unit tests
+- ✅ Scoring engine unit tests (`bun run test`)
 
 ## Deploy
 - ✅ TanStack Start on Cloudflare Workers via Lovable
@@ -30,7 +30,7 @@
 - ⏳ Error monitoring + request-ID tracing
 
 ## Billing
-- ⏳ Stripe checkout + webhook
-- ⏳ Plan quota enforcement (`monthly_candidate_quota`)
+- ⏳ Stripe checkout + webhook (needs paid Lovable plan)
+- ✅ Plan quota enforcement (`monthly_candidate_quota`)
 - ⏳ Per-plan rate limits
 - ⏳ Cancel → read-only free tier

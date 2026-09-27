@@ -36,14 +36,14 @@ Master pre-launch checklist. See also: `MVP_LAUNCH_CHECKLIST.md`, `PRODUCTION_CH
 
 ## Turn 5 (Billing) — PENDING
 - [ ] Stripe payments (Starter/Growth)
-- [ ] Candidate quota enforcement
+- [x] Candidate quota enforcement
 - [ ] `/app/settings/{profile,billing,api-keys}`
-- [ ] Account deletion (14-day soft-delete)
+- [x] Account deletion (14-day soft-delete)
 - [ ] Subscription cancellation → read-only free tier
 
 ## Turn 6 (Hardening) — PENDING
 - [ ] Playwright E2E (signup, onboarding, upload+match, delete)
-- [ ] Scoring function unit tests (must-have gating, property-based)
+- [x] Scoring function unit tests (must-have gating, property-based)
 - [ ] `prefers-reduced-motion` audit
 - [ ] All checklists populated
 - [ ] Attractive README with HLD/LLD

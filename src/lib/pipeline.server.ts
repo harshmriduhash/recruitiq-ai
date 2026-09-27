@@ -24,9 +24,7 @@ export type ExtractedRequirements = z.infer<typeof RequirementsSchema>;
 
 // AGENT 1 — Requirement extraction from a raw job description.
 export async function extractRequirements(jdText: string): Promise<ExtractedRequirements> {
-  const gateway = getGateway();
-  const { output } = await generateText({
-    model: gateway(MODELS.fast),
+  const { output } = await generateWithFallback({
     output: Output.object({
       schema: RequirementsSchema,
     }),
@@ -64,13 +62,11 @@ async function findEvidence(
   requirements: Requirement[],
   resumeText: string,
 ): Promise<Evidence[]> {
-  const gateway = getGateway();
   const reqList = requirements
     .map((r) => `- [${r.id}] ${r.label} ${r.must_have ? "(MUST-HAVE)" : ""} weight=${r.weight}`)
     .join("\n");
 
-  const { output } = await generateText({
-    model: gateway(MODELS.fast),
+  const { output } = await generateWithFallback({
     output: Output.object({ schema: EvidenceListSchema }),
     prompt: `You are an evidence-finding agent. For EACH requirement below, decide whether the resume shows evidence of it, and quote the exact resume text that proves it.
 
@@ -95,13 +91,11 @@ async function summarize(
   jobTitle: string,
   breakdown: ReturnType<typeof computeScore>,
 ): Promise<string> {
-  const gateway = getGateway();
   const wins = breakdown.requirement_breakdown.filter((r) => r.present === "yes").map((r) => r.label);
   const gaps = breakdown.requirement_breakdown.filter((r) => r.present === "no" && r.must_have).map((r) => r.label);
   const partials = breakdown.requirement_breakdown.filter((r) => r.present === "partial").map((r) => r.label);
 
-  const { text } = await generateText({
-    model: gateway(MODELS.fast),
+  const { text } = await generateWithFallback({
     prompt: `Write a 2-3 sentence plain-language hiring-manager summary for this candidate for the "${jobTitle}" role.
 Overall score: ${breakdown.overall_score}/100 (confidence: ${breakdown.overall_confidence})
 ${breakdown.gated_by_must_have ? "NOTE: A must-have requirement is missing." : ""}
@@ -250,4 +244,16 @@ async function withRetry<T>(code: string, fn: () => Promise<T>, attempts = 3): P
     }
   }
   throw new PipelineError(code, last instanceof Error ? last.message : String(last));
+}
+
+// PRD §9.6 — fall back to a secondary model when the primary is unavailable.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function generateWithFallback(opts: any): Promise<any> {
+  const gw = getGateway();
+  try {
+    return await generateText({ ...opts, model: gw(MODELS.fast) });
+  } catch (err) {
+    console.warn("[ai] primary model failed, using fallback", err);
+    return await generateText({ ...opts, model: gw(MODELS.fallback) });
+  }
 }
