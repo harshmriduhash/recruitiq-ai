@@ -694,6 +694,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      consume_candidate_quota: { Args: { _org_id: string }; Returns: Json }
       current_user_org: { Args: never; Returns: string }
       has_role: {
         Args: {

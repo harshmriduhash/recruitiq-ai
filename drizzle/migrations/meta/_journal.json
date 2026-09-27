@@ -15,6 +15,13 @@
       "when": 1790147162989,
       "tag": "0001_voice_review_and_ats_sync",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790484928553,
+      "tag": "0002_candidate_quota_enforcement",
+      "breakpoints": true
     }
   ]
 }
