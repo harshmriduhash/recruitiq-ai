@@ -104,6 +104,25 @@ function SettingsPage() {
           </p>
         </section>
 
+        <AtsSettingsSection />
+
+        <section className="surface-elevated space-y-3 p-6">
+          <h2 className="font-semibold">Password</h2>
+          <p className="text-sm text-muted-foreground">We'll email you a secure link to set a new password.</p>
+          <Button
+            variant="outline"
+            onClick={async () => {
+              const { error } = await supabase.auth.resetPasswordForEmail(profile.email, {
+                redirectTo: `${window.location.origin}/reset-password`,
+              });
+              if (error) toast.error(error.message);
+              else toast.success("Reset link sent — check your inbox");
+            }}
+          >
+            Send reset link
+          </Button>
+        </section>
+
         <section className="surface-elevated space-y-3 border-destructive/40 p-6">
           <h2 className="font-semibold text-destructive">Delete account</h2>
           {deletionDate ? (

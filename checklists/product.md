@@ -59,7 +59,7 @@
 - ⏳ Subscription cancellation → read-only free tier + exit survey
 
 ## Account & settings
-- ✅ `/app/settings` — profile, plan usage meter
+- ✅ `/app/settings` — profile, plan usage, ATS sync, password reset link, account deletion
 - ✅ Account deletion with password re-auth + 14-day grace
 - ✅ Password strength meter (sign-up + reset)
 - ⏳ Billing page / upgrade flow (needs paid Lovable plan)
