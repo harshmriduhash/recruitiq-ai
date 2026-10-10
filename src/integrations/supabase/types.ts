@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_rate_limits: {
+        Row: {
+          bucket: string
+          organization_id: string
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          organization_id: string
+          request_count?: number
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          organization_id?: string
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_rate_limits_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ats_connections: {
         Row: {
           api_key: string
@@ -251,6 +280,47 @@ export type Database = {
           },
         ]
       }
+      error_events: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          metadata: Json
+          organization_id: string | null
+          request_id: string
+          source: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json
+          organization_id?: string | null
+          request_id: string
+          source: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json
+          organization_id?: string | null
+          request_id?: string
+          source?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "error_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_requisitions: {
         Row: {
           created_at: string
@@ -260,6 +330,7 @@ export type Database = {
           id: string
           organization_id: string
           raw_jd_text: string
+          requirements_embedding: string | null
           status: Database["public"]["Enums"]["job_status"]
           title: string
           updated_at: string
@@ -272,6 +343,7 @@ export type Database = {
           id?: string
           organization_id: string
           raw_jd_text: string
+          requirements_embedding?: string | null
           status?: Database["public"]["Enums"]["job_status"]
           title: string
           updated_at?: string
@@ -284,6 +356,7 @@ export type Database = {
           id?: string
           organization_id?: string
           raw_jd_text?: string
+          requirements_embedding?: string | null
           status?: Database["public"]["Enums"]["job_status"]
           title?: string
           updated_at?: string
@@ -694,6 +767,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_rate_limit: {
+        Args: { _bucket: string; _window_seconds?: number }
+        Returns: Json
+      }
       consume_candidate_quota: { Args: { _org_id: string }; Returns: Json }
       current_user_org: { Args: never; Returns: string }
       has_role: {
@@ -705,6 +782,16 @@ export type Database = {
         Returns: boolean
       }
       is_org_member: { Args: { _org_id: string }; Returns: boolean }
+      match_similar_jobs: {
+        Args: { _embedding: string; _exclude?: string; _limit?: number }
+        Returns: {
+          created_at: string
+          extracted_requirements: Json
+          id: string
+          similarity: number
+          title: string
+        }[]
+      }
       search_candidates: {
         Args: { _limit?: number; _query: string }
         Returns: {

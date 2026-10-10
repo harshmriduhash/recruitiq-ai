@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { extractRequirements } from "./pipeline.server";
 import { writeAudit } from "./audit.server";
+import { enforceRateLimit, embedText, jobEmbeddingText } from "./guard.server";
 
 async function orgIdFor(supabase: ReturnType<typeof requireSupabaseAuth extends never ? never : never> | any, userId: string): Promise<string> {
   const { data, error } = await supabase.from("profiles").select("organization_id").eq("id", userId).single();
@@ -20,7 +21,9 @@ export const createJob = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => CreateJobInput.parse(data))
   .handler(async ({ data, context }) => {
     const organization_id = await orgIdFor(context.supabase, context.userId);
+    await enforceRateLimit(context.supabase, "ai");
     const extracted = await extractRequirements(data.raw_jd_text);
+    const requirements_embedding = await embedText(jobEmbeddingText(data.title, extracted));
     const { data: job, error } = await context.supabase
       .from("job_requisitions")
       .insert({
@@ -29,6 +32,7 @@ export const createJob = createServerFn({ method: "POST" })
         title: data.title,
         raw_jd_text: data.raw_jd_text,
         extracted_requirements: extracted as never,
+        requirements_embedding,
       })
       .select("id")
       .single();
@@ -111,7 +115,13 @@ export const updateJob = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const organization_id = await orgIdFor(context.supabase, context.userId);
     const patch: Record<string, unknown> = { title: data.title, raw_jd_text: data.raw_jd_text };
-    if (data.reextract) patch.extracted_requirements = await extractRequirements(data.raw_jd_text);
+    if (data.reextract) {
+      await enforceRateLimit(context.supabase, "ai");
+      patch.extracted_requirements = await extractRequirements(data.raw_jd_text);
+    }
+    const { data: cur } = await context.supabase.from("job_requisitions").select("extracted_requirements").eq("id", data.id).single();
+    const emb = await embedText(jobEmbeddingText(data.title, patch.extracted_requirements ?? cur?.extracted_requirements));
+    if (emb) patch.requirements_embedding = emb;
     const { error } = await context.supabase.from("job_requisitions").update(patch as never).eq("id", data.id);
     if (error) throw error;
     await writeAudit(context.supabase, {
@@ -155,6 +165,22 @@ export const findSimilarJobs = createServerFn({ method: "GET" })
     z.object({ title: z.string().trim().min(2).max(200), excludeId: z.string().uuid().optional() }).parse(data),
   )
   .handler(async ({ data, context }) => {
+    // Semantic first: embed the title and compare against stored requirement embeddings.
+    const vec = await embedText(data.title);
+    if (vec) {
+      const { data: sem, error: semErr } = await context.supabase.rpc("match_similar_jobs", {
+        _embedding: vec, _exclude: data.excludeId ?? undefined, _limit: 3,
+      } as never);
+      const rows = (sem ?? []) as any[];
+      if (!semErr && rows.length) {
+        return rows
+          .filter((j) => j.similarity > 0.35)
+          .map((j) => ({
+            id: j.id, title: j.title, created_at: j.created_at, overlap: Math.round(j.similarity * 100),
+            requirements: ((j.extracted_requirements?.requirements ?? []) as any[]).slice(0, 6),
+          }));
+      }
+    }
     const words = data.title
       .toLowerCase()
       .split(/[^a-z0-9+#.]+/)
