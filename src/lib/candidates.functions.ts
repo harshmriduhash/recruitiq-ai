@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { runFullPipeline } from "./pipeline.server";
 import { writeAudit } from "./audit.server";
+import { enforceRateLimit } from "./guard.server";
 
 async function orgIdFor(supabase: any, userId: string): Promise<string> {
   const { data, error } = await supabase.from("profiles").select("organization_id").eq("id", userId).single();
@@ -40,6 +41,7 @@ export const startCandidatePipeline = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const organization_id = await orgIdFor(context.supabase, context.userId);
+    await enforceRateLimit(context.supabase, "scoring");
     const { error: qErr } = await context.supabase.rpc("consume_candidate_quota", { _org_id: organization_id });
     if (qErr) {
       if (qErr.message.includes("QUOTA_EXCEEDED"))

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getGateway, MODELS } from "./ai-gateway.server";
 import { embed } from "ai";
+import { enforceRateLimit } from "./guard.server";
 
 export const hybridCandidateSearch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -19,6 +20,7 @@ export const hybridCandidateSearch = createServerFn({ method: "POST" })
       return { results: recent ?? [], mode: "recent" };
     }
 
+    await enforceRateLimit(context.supabase, "search");
     // FTS via RPC
     const { data: fts, error: ftsErr } = await context.supabase.rpc("search_candidates", { _query: query, _limit: 30 });
     if (ftsErr) throw ftsErr;
