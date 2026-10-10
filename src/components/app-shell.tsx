@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Briefcase, Users, Search, LogOut, Sparkles, Plug, Settings } from "lucide-react";
+import { LayoutDashboard, Briefcase, Users, Search, LogOut, Sparkles, Plug, Settings, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -37,6 +37,7 @@ const items = [
   { to: "/app/candidates", label: "Candidates", icon: Search },
   { to: "/app/team", label: "Team", icon: Users },
   { to: "/app/integrations", label: "Integrations", icon: Plug },
+  { to: "/app/activity", label: "Activity", icon: History },
   { to: "/app/settings", label: "Settings", icon: Settings },
 ] as const;
 
