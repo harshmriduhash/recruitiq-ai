@@ -14,7 +14,7 @@ import {
   listRemoteJobs, importCandidatesForJob, syncAllAtsCandidates,
 } from "@/lib/ats.functions";
 import { listJobs } from "@/lib/jobs.functions";
-import { toast } from "sonner";
+import { SyncAllButton } from "@/components/ats-sync-all-button";
 import { Plug, Trash2, Loader2, CheckCircle2, AlertCircle, DownloadCloud, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/integrations")({
@@ -181,24 +181,6 @@ function ImportPanel({ conn }: { conn: any }) {
         Import candidates
       </Button>
     </div>
-  );
-}
-
-export function SyncAllButton({ connectionId, onDone }: { connectionId: string; onDone?: () => void }) {
-  const fn = useServerFn(syncAllAtsCandidates);
-  const m = useMutation({
-    mutationFn: () => fn({ data: { connectionId } }),
-    onSuccess: (r: any) => {
-      if (r.ok) toast.success(`Synced ${r.synced} candidate(s)${r.failed ? `, ${r.failed} failed` : ""}`);
-      else toast.error(r.error);
-      onDone?.();
-    },
-    onError: (e: any) => toast.error(e?.message ?? "Sync failed"),
-  });
-  return (
-    <Button size="sm" variant="outline" className="gap-2" disabled={m.isPending} onClick={() => m.mutate()}>
-      {m.isPending ? <Loader2 className="size-3 animate-spin" /> : <RefreshCw className="size-3" />} Sync all
-    </Button>
   );
 }
 
