@@ -488,3 +488,40 @@ export const pushVoiceScreenToAts = createServerFn({ method: "POST" })
       return { ok: false, error: msg };
     }
   });
+
+// Bulk re-sync every candidate imported through one ATS connection.
+export const syncAllAtsCandidates = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ connectionId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { organization_id } = await ctx(context.supabase, context.userId);
+    const { data: conn } = await context.supabase
+      .from("ats_connections").select("id, provider, api_key").eq("id", data.connectionId).maybeSingle();
+    if (!conn) return { ok: false, error: "ATS connection not found or you lack access.", synced: 0, failed: 0 };
+    const { data: links } = await context.supabase
+      .from("ats_imports").select("id, candidate_id, external_candidate_id")
+      .eq("connection_id", conn.id).not("candidate_id", "is", null).limit(200);
+    let synced = 0, failed = 0; let lastErr: string | null = null;
+    for (const link of links ?? []) {
+      try {
+        const remote = await fetchRemoteCandidate(conn.provider, conn.api_key, link.external_candidate_id);
+        const patch: { candidate_name?: string; candidate_email?: string } = {};
+        if (remote.name) patch.candidate_name = remote.name;
+        if (remote.email) patch.candidate_email = remote.email;
+        if (Object.keys(patch).length) await context.supabase.from("candidates").update(patch).eq("id", link.candidate_id!);
+        await context.supabase.from("ats_imports")
+          .update({ last_synced_at: new Date().toISOString(), external_stage: remote.stage }).eq("id", link.id);
+        synced++;
+      } catch (e) { failed++; lastErr = e instanceof Error ? e.message : String(e); }
+    }
+    await context.supabase.from("ats_connections").update({
+      last_sync_at: new Date().toISOString(),
+      status: failed && !synced ? "error" : "active",
+      last_error: failed ? `${failed} candidate(s) failed: ${lastErr}` : null,
+    }).eq("id", conn.id);
+    await writeAudit(context.supabase, {
+      organization_id, actor_user_id: context.userId, action: "ats.bulk_synced",
+      target_type: "ats_connection", target_id: conn.id, metadata: { synced, failed },
+    });
+    return { ok: true, synced, failed };
+  });

@@ -34,3 +34,7 @@
 ## Auth providers
 - ✅ Google OAuth
 - ⏳ SAML SSO (Scale tier)
+
+## ATS sync
+- ✅ Per-candidate "Sync from ATS" on candidate detail
+- ✅ Bulk "Sync all" per connection (Integrations + Settings), audit-logged `ats.bulk_synced`

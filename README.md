@@ -304,3 +304,7 @@ Proprietary — RecruitIQ.
 <p align="center">
   <em>Built with care for hiring teams who care about fairness.</em>
 </p>
+
+### Turn 9 — ATS sync wiring & settings
+- **Bulk ATS sync**: `syncAllAtsCandidates` re-pulls name, email and stage for every imported candidate of a connection; "Sync all" on `/app/integrations` and `/app/settings`.
+- **Settings page**: profile, plan usage, ATS sync status, password reset link, account deletion (14-day grace).

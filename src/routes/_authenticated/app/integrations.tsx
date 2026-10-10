@@ -11,10 +11,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   listAtsConnections, createAtsConnection, deleteAtsConnection,
-  listRemoteJobs, importCandidatesForJob,
+  listRemoteJobs, importCandidatesForJob, 
 } from "@/lib/ats.functions";
 import { listJobs } from "@/lib/jobs.functions";
-import { Plug, Trash2, Loader2, CheckCircle2, AlertCircle, DownloadCloud } from "lucide-react";
+import { SyncAllButton } from "@/components/ats-sync-all-button";
+import { Plug, Trash2, Loader2, CheckCircle2, AlertCircle, DownloadCloud, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/integrations")({
   head: () => ({ meta: [{ title: "Integrations — RecruitIQ" }, { name: "description", content: "Connect Greenhouse, Lever, or Ashby to import candidates into RecruitIQ." }] }),
@@ -114,6 +115,7 @@ function ConnectionRow({ conn, onChange }: { conn: any; onChange: () => void }) 
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <SyncAllButton connectionId={conn.id} onDone={onChange} />
           <Button size="sm" variant="outline" onClick={() => setExpanded((v) => !v)}>
             {expanded ? "Hide" : "Import candidates"}
           </Button>

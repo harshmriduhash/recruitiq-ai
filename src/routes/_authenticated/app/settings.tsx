@@ -1,4 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { listAtsConnections } from "@/lib/ats.functions";
+import { SyncAllButton } from "@/components/ats-sync-all-button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -104,6 +106,25 @@ function SettingsPage() {
           </p>
         </section>
 
+        <AtsSettingsSection />
+
+        <section className="surface-elevated space-y-3 p-6">
+          <h2 className="font-semibold">Password</h2>
+          <p className="text-sm text-muted-foreground">We'll email you a secure link to set a new password.</p>
+          <Button
+            variant="outline"
+            onClick={async () => {
+              const { error } = await supabase.auth.resetPasswordForEmail(profile.email, {
+                redirectTo: `${window.location.origin}/reset-password`,
+              });
+              if (error) toast.error(error.message);
+              else toast.success("Reset link sent — check your inbox");
+            }}
+          >
+            Send reset link
+          </Button>
+        </section>
+
         <section className="surface-elevated space-y-3 border-destructive/40 p-6">
           <h2 className="font-semibold text-destructive">Delete account</h2>
           {deletionDate ? (
@@ -154,5 +175,33 @@ function SettingsPage() {
         </section>
       </div>
     </>
+  );
+}
+
+function AtsSettingsSection() {
+  const listFn = useServerFn(listAtsConnections);
+  const { data, refetch } = useQuery({ queryKey: ["ats-connections"], queryFn: () => listFn() });
+  return (
+    <section className="surface-elevated space-y-3 p-6">
+      <h2 className="font-semibold">ATS sync</h2>
+      {(data ?? []).length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No ATS connected. <Link to="/app/integrations" className="text-primary underline">Connect Greenhouse, Lever or Ashby</Link>.
+        </p>
+      ) : (
+        (data ?? []).map((c: any) => (
+          <div key={c.id} className="flex items-center justify-between gap-3 text-sm">
+            <div>
+              <div className="font-medium">{c.display_name} <span className="capitalize text-muted-foreground">· {c.provider}</span></div>
+              <div className="text-xs text-muted-foreground">
+                {c.last_sync_at ? `Last synced ${new Date(c.last_sync_at).toLocaleString()}` : "Never synced"}
+                {c.last_error ? ` · ${c.last_error}` : ""}
+              </div>
+            </div>
+            <SyncAllButton connectionId={c.id} onDone={() => refetch()} />
+          </div>
+        ))
+      )}
+    </section>
   );
 }
