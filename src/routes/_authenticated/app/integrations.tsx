@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   listAtsConnections, createAtsConnection, deleteAtsConnection,
-  listRemoteJobs, importCandidatesForJob, syncAllAtsCandidates,
+  listRemoteJobs, importCandidatesForJob, 
 } from "@/lib/ats.functions";
 import { listJobs } from "@/lib/jobs.functions";
 import { SyncAllButton } from "@/components/ats-sync-all-button";
