@@ -102,7 +102,7 @@ function SettingsPage() {
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
-            Paid plans (Starter $99 / Growth $299) are coming soon. Contact us to raise your limit.
+            Upgrade, switch or cancel on the <Link to="/app/billing" className="text-primary underline">Billing page</Link>.
           </p>
         </section>
 
