@@ -27,10 +27,10 @@
 - ✅ `pipeline_runs.error_message` + `error_code` populated on failure
 - ✅ `audit_logs` writes on candidate upload, voice screen completion, ATS sync
 - ⏳ PostHog funnel
-- ⏳ Error monitoring + request-ID tracing
+- ✅ Error monitoring + request-ID tracing (`error_events`, `/app/activity`)
 
 ## Billing
 - ⏳ Stripe checkout + webhook (needs paid Lovable plan)
 - ✅ Plan quota enforcement (`monthly_candidate_quota`)
-- ⏳ Per-plan rate limits
+- ✅ Per-plan rate limits (`check_rate_limit`)
 - ⏳ Cancel → read-only free tier
