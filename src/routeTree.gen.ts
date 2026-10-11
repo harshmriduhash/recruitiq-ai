@@ -25,6 +25,7 @@ import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppOnboardingRouteImport } from './routes/_authenticated/app/onboarding'
 import { Route as AuthenticatedAppIntegrationsRouteImport } from './routes/_authenticated/app/integrations'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/app/dashboard'
+import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated/app/billing'
 import { Route as AuthenticatedAppActivityRouteImport } from './routes/_authenticated/app/activity'
 import { Route as AuthenticatedAppJobsIndexRouteImport } from './routes/_authenticated/app/jobs/index'
 import { Route as AuthenticatedAppCandidatesIndexRouteImport } from './routes/_authenticated/app/candidates.index'
@@ -115,6 +116,11 @@ const AuthenticatedAppDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
+const AuthenticatedAppBillingRoute = AuthenticatedAppBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
 const AuthenticatedAppActivityRoute =
   AuthenticatedAppActivityRouteImport.update({
     id: '/activity',
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app': typeof AuthenticatedAppRouteRouteWithChildren
   '/app/activity': typeof AuthenticatedAppActivityRoute
+  '/app/billing': typeof AuthenticatedAppBillingRoute
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByTo {
   '/security': typeof SecurityRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/activity': typeof AuthenticatedAppActivityRoute
+  '/app/billing': typeof AuthenticatedAppBillingRoute
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/app/onboarding': typeof AuthenticatedAppOnboardingRoute
@@ -208,6 +216,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteRouteWithChildren
   '/_authenticated/app/activity': typeof AuthenticatedAppActivityRoute
+  '/_authenticated/app/billing': typeof AuthenticatedAppBillingRoute
   '/_authenticated/app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/app/integrations': typeof AuthenticatedAppIntegrationsRoute
   '/_authenticated/app/onboarding': typeof AuthenticatedAppOnboardingRoute
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/app'
     | '/app/activity'
+    | '/app/billing'
     | '/app/dashboard'
     | '/app/integrations'
     | '/app/onboarding'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/security'
     | '/sitemap.xml'
     | '/app/activity'
+    | '/app/billing'
     | '/app/dashboard'
     | '/app/integrations'
     | '/app/onboarding'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/_authenticated/app'
     | '/_authenticated/app/activity'
+    | '/_authenticated/app/billing'
     | '/_authenticated/app/dashboard'
     | '/_authenticated/app/integrations'
     | '/_authenticated/app/onboarding'
@@ -418,6 +430,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
+    '/_authenticated/app/billing': {
+      id: '/_authenticated/app/billing'
+      path: '/billing'
+      fullPath: '/app/billing'
+      preLoaderRoute: typeof AuthenticatedAppBillingRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
     '/_authenticated/app/activity': {
       id: '/_authenticated/app/activity'
       path: '/activity'
@@ -465,6 +484,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppActivityRoute: typeof AuthenticatedAppActivityRoute
+  AuthenticatedAppBillingRoute: typeof AuthenticatedAppBillingRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppIntegrationsRoute: typeof AuthenticatedAppIntegrationsRoute
   AuthenticatedAppOnboardingRoute: typeof AuthenticatedAppOnboardingRoute
@@ -480,6 +500,7 @@ interface AuthenticatedAppRouteRouteChildren {
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
   AuthenticatedAppActivityRoute: AuthenticatedAppActivityRoute,
+  AuthenticatedAppBillingRoute: AuthenticatedAppBillingRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppIntegrationsRoute: AuthenticatedAppIntegrationsRoute,
   AuthenticatedAppOnboardingRoute: AuthenticatedAppOnboardingRoute,
