@@ -52,14 +52,10 @@
 - ✅ Focus rings on interactive controls
 - ✅ Semantic headings; single H1 per route
 
-## Settings & account (pending)
-- ⏳ `/app/settings/profile`, `/app/settings/billing`, `/app/settings/api-keys`
-- ⏳ Password strength meter (sign-up + reset)
-- ⏳ Account deletion with re-auth + 14-day grace period
-- ⏳ Subscription cancellation → read-only free tier + exit survey
-
 ## Account & settings
 - ✅ `/app/settings` — profile, plan usage, ATS sync, password reset link, account deletion
 - ✅ Account deletion with password re-auth + 14-day grace
 - ✅ Password strength meter (sign-up + reset)
 - ⏳ Billing page / upgrade flow (needs paid Lovable plan)
+- ⏳ Subscription cancellation → read-only free tier + exit survey (depends on billing)
+- ✅ `/app/activity` — audit log CSV export + recent errors

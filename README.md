@@ -249,19 +249,20 @@ sequenceDiagram
 - **Scoring engine unit tests** — must-have gating, weights, excerpt verification + 500-case property test; run with `bun run test` (PRD §10.5)
 - **Fallback model** — pipeline retries on `openai/gpt-5-mini` if Gemini is unavailable (PRD §9.6)
 
+- **Per-plan rate limits** — `check_rate_limit` caps AI, scoring and search calls per minute (Free 20 · Starter 60 · Growth 180 · Scale 600) (PRD §7.7)
+- **Semantic job similarity** — job title + requirements embedded on create/edit; `match_similar_jobs` cosine search with keyword fallback
+- **Error monitoring & request tracing** — every server call gets an `x-request-id`; failures land in `error_events` (PRD §7.8, §10.3)
+- **Activity page** (`/app/activity`) — audit log with CSV export + recent errors for owners/admins
+
 ### 🚧 Pending (MVP launch blockers)
 - **Billing** — Stripe checkout, Starter $99 / Growth $299, cancel → read-only free tier with exit survey (PRD §5.4, §6.5) — *blocked: built-in payments need a paid Lovable workspace plan*
-- **Per-plan request rate limits** (PRD §7.7)
 - **Authenticated E2E run** — spec written; needs a test account (`E2E_USER` / `E2E_PASS`)
-- **Semantic job similarity** — upgrade keyword lookup to embeddings of job requirements
 - README screenshots (post-first-tenant)
 
 ### 🔭 Next (post-MVP)
 - **Twilio-backed outbound telephony** for voice pre-screen (currently browser-recorded)
 - **SAML SSO** for Scale tier
 - **BullMQ-backed pipeline** for high-volume batch imports
-- **Audit-log export UI** (table already writes, export deferred)
-- **Error monitoring & structured request tracing** (PRD §7.8, §10.3)
 - **Custom domain + production-readiness gate** (PRD §10.6)
 - **LLM-as-judge eval infra** (PRD §9.5)
 - **PostHog analytics funnel**
