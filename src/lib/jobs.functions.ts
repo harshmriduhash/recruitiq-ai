@@ -22,6 +22,15 @@ export const createJob = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const organization_id = await orgIdFor(context.supabase, context.userId);
     await enforceRateLimit(context.supabase, "ai");
+    // Plan job limits (Free = 1 open job, Starter = 5).
+    const { data: org } = await context.supabase.from("organizations").select("plan").eq("id", organization_id).single();
+    const jobLimit = org?.plan === "free" ? 1 : org?.plan === "starter" ? 5 : null;
+    if (jobLimit) {
+      const { count } = await context.supabase.from("job_requisitions").select("id", { count: "exact", head: true })
+        .is("deleted_at", null).eq("status", "open");
+      if ((count ?? 0) >= jobLimit)
+        throw new Error(`Your ${org?.plan} plan allows ${jobLimit} open job${jobLimit > 1 ? "s" : ""}. Close a job or upgrade on the Billing page.`);
+    }
     const extracted = await extractRequirements(data.raw_jd_text);
     const requirements_embedding = await embedText(jobEmbeddingText(data.title, extracted));
     const { data: job, error } = await context.supabase
