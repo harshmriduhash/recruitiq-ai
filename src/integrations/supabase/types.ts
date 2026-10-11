@@ -220,6 +220,56 @@ export type Database = {
           },
         ]
       }
+      billing_events: {
+        Row: {
+          actor_user_id: string | null
+          amount_cents: number
+          created_at: string
+          event_type: string
+          feedback: string | null
+          from_plan: Database["public"]["Enums"]["plan_tier"] | null
+          id: string
+          mock: boolean
+          organization_id: string
+          reason: string | null
+          to_plan: Database["public"]["Enums"]["plan_tier"] | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          amount_cents?: number
+          created_at?: string
+          event_type: string
+          feedback?: string | null
+          from_plan?: Database["public"]["Enums"]["plan_tier"] | null
+          id?: string
+          mock?: boolean
+          organization_id: string
+          reason?: string | null
+          to_plan?: Database["public"]["Enums"]["plan_tier"] | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          amount_cents?: number
+          created_at?: string
+          event_type?: string
+          feedback?: string | null
+          from_plan?: Database["public"]["Enums"]["plan_tier"] | null
+          id?: string
+          mock?: boolean
+          organization_id?: string
+          reason?: string | null
+          to_plan?: Database["public"]["Enums"]["plan_tier"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidates: {
         Row: {
           candidate_email: string | null
@@ -440,8 +490,10 @@ export type Database = {
       }
       organizations: {
         Row: {
+          cancel_at_period_end: boolean
           candidates_used_this_period: number
           created_at: string
+          current_period_end: string | null
           deleted_at: string | null
           id: string
           monthly_candidate_quota: number
@@ -450,10 +502,13 @@ export type Database = {
           period_started_at: string
           plan: Database["public"]["Enums"]["plan_tier"]
           stripe_customer_id: string | null
+          subscription_status: string
         }
         Insert: {
+          cancel_at_period_end?: boolean
           candidates_used_this_period?: number
           created_at?: string
+          current_period_end?: string | null
           deleted_at?: string | null
           id?: string
           monthly_candidate_quota?: number
@@ -462,10 +517,13 @@ export type Database = {
           period_started_at?: string
           plan?: Database["public"]["Enums"]["plan_tier"]
           stripe_customer_id?: string | null
+          subscription_status?: string
         }
         Update: {
+          cancel_at_period_end?: boolean
           candidates_used_this_period?: number
           created_at?: string
+          current_period_end?: string | null
           deleted_at?: string | null
           id?: string
           monthly_candidate_quota?: number
@@ -474,6 +532,7 @@ export type Database = {
           period_started_at?: string
           plan?: Database["public"]["Enums"]["plan_tier"]
           stripe_customer_id?: string | null
+          subscription_status?: string
         }
         Relationships: []
       }
@@ -767,6 +826,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_due_cancellation: { Args: never; Returns: undefined }
       check_rate_limit: {
         Args: { _bucket: string; _window_seconds?: number }
         Returns: Json
@@ -792,6 +852,15 @@ export type Database = {
           title: string
         }[]
       }
+      mock_cancel_subscription: {
+        Args: { _feedback?: string; _immediate?: boolean; _reason: string }
+        Returns: Json
+      }
+      mock_change_plan: {
+        Args: { _plan: Database["public"]["Enums"]["plan_tier"] }
+        Returns: Json
+      }
+      mock_resume_subscription: { Args: never; Returns: Json }
       search_candidates: {
         Args: { _limit?: number; _query: string }
         Returns: {
