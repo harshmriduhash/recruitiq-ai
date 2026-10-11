@@ -9,57 +9,36 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SecurityRouteImport } from './routes/security'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as HowItWorksRouteImport } from './routes/how-it-works'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SecurityRouteImport } from './routes/security'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/app/route'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
-import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app/team'
-import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app/settings'
-import { Route as AuthenticatedAppOnboardingRouteImport } from './routes/_authenticated/app/onboarding'
-import { Route as AuthenticatedAppIntegrationsRouteImport } from './routes/_authenticated/app/integrations'
-import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/app/dashboard'
 import { Route as AuthenticatedAppActivityRouteImport } from './routes/_authenticated/app/activity'
-import { Route as AuthenticatedAppJobsIndexRouteImport } from './routes/_authenticated/app/jobs/index'
+import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/app/dashboard'
+import { Route as AuthenticatedAppIntegrationsRouteImport } from './routes/_authenticated/app/integrations'
+import { Route as AuthenticatedAppOnboardingRouteImport } from './routes/_authenticated/app/onboarding'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app/settings'
+import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/app/team'
 import { Route as AuthenticatedAppCandidatesIndexRouteImport } from './routes/_authenticated/app/candidates.index'
-import { Route as AuthenticatedAppJobsNewRouteImport } from './routes/_authenticated/app/jobs/new'
-import { Route as AuthenticatedAppJobsIdRouteImport } from './routes/_authenticated/app/jobs/$id'
 import { Route as AuthenticatedAppCandidatesIdRouteImport } from './routes/_authenticated/app/candidates/$id'
+import { Route as AuthenticatedAppJobsIndexRouteImport } from './routes/_authenticated/app/jobs/index'
+import { Route as AuthenticatedAppJobsIdRouteImport } from './routes/_authenticated/app/jobs/$id'
+import { Route as AuthenticatedAppJobsNewRouteImport } from './routes/_authenticated/app/jobs/new'
 
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SecurityRoute = SecurityRouteImport.update({
-  id: '/security',
-  path: '/security',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HowItWorksRoute = HowItWorksRouteImport.update({
-  id: '/how-it-works',
-  path: '/how-it-works',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -67,13 +46,34 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppRouteRoute = AuthenticatedAppRouteRouteImport.update({
@@ -86,27 +86,10 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
-const AuthenticatedAppTeamRoute = AuthenticatedAppTeamRouteImport.update({
-  id: '/team',
-  path: '/team',
-  getParentRoute: () => AuthenticatedAppRouteRoute,
-} as any)
-const AuthenticatedAppSettingsRoute =
-  AuthenticatedAppSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
-const AuthenticatedAppOnboardingRoute =
-  AuthenticatedAppOnboardingRouteImport.update({
-    id: '/onboarding',
-    path: '/onboarding',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
-const AuthenticatedAppIntegrationsRoute =
-  AuthenticatedAppIntegrationsRouteImport.update({
-    id: '/integrations',
-    path: '/integrations',
+const AuthenticatedAppActivityRoute =
+  AuthenticatedAppActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
 const AuthenticatedAppDashboardRoute =
@@ -115,10 +98,39 @@ const AuthenticatedAppDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedAppActivityRoute =
-  AuthenticatedAppActivityRouteImport.update({
-    id: '/activity',
-    path: '/activity',
+const AuthenticatedAppIntegrationsRoute =
+  AuthenticatedAppIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppOnboardingRoute =
+  AuthenticatedAppOnboardingRouteImport.update({
+    id: '/onboarding',
+    path: '/onboarding',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppTeamRoute = AuthenticatedAppTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
+const AuthenticatedAppCandidatesIndexRoute =
+  AuthenticatedAppCandidatesIndexRouteImport.update({
+    id: '/candidates/',
+    path: '/candidates/',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppCandidatesIdRoute =
+  AuthenticatedAppCandidatesIdRouteImport.update({
+    id: '/candidates/$id',
+    path: '/candidates/$id',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
 const AuthenticatedAppJobsIndexRoute =
@@ -127,28 +139,16 @@ const AuthenticatedAppJobsIndexRoute =
     path: '/jobs/',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
-const AuthenticatedAppCandidatesIndexRoute =
-  AuthenticatedAppCandidatesIndexRouteImport.update({
-    id: '/candidates/',
-    path: '/candidates/',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
-const AuthenticatedAppJobsNewRoute = AuthenticatedAppJobsNewRouteImport.update({
-  id: '/jobs/new',
-  path: '/jobs/new',
-  getParentRoute: () => AuthenticatedAppRouteRoute,
-} as any)
 const AuthenticatedAppJobsIdRoute = AuthenticatedAppJobsIdRouteImport.update({
   id: '/jobs/$id',
   path: '/jobs/$id',
   getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
-const AuthenticatedAppCandidatesIdRoute =
-  AuthenticatedAppCandidatesIdRouteImport.update({
-    id: '/candidates/$id',
-    path: '/candidates/$id',
-    getParentRoute: () => AuthenticatedAppRouteRoute,
-  } as any)
+const AuthenticatedAppJobsNewRoute = AuthenticatedAppJobsNewRouteImport.update({
+  id: '/jobs/new',
+  path: '/jobs/new',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -306,53 +306,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/security': {
-      id: '/security'
-      path: '/security'
-      fullPath: '/security'
-      preLoaderRoute: typeof SecurityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/how-it-works': {
-      id: '/how-it-works'
-      path: '/how-it-works'
-      fullPath: '/how-it-works'
-      preLoaderRoute: typeof HowItWorksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -362,11 +320,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app': {
@@ -383,32 +383,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/app/team': {
-      id: '/_authenticated/app/team'
-      path: '/team'
-      fullPath: '/app/team'
-      preLoaderRoute: typeof AuthenticatedAppTeamRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
-    '/_authenticated/app/settings': {
-      id: '/_authenticated/app/settings'
-      path: '/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
-    '/_authenticated/app/onboarding': {
-      id: '/_authenticated/app/onboarding'
-      path: '/onboarding'
-      fullPath: '/app/onboarding'
-      preLoaderRoute: typeof AuthenticatedAppOnboardingRouteImport
-      parentRoute: typeof AuthenticatedAppRouteRoute
-    }
-    '/_authenticated/app/integrations': {
-      id: '/_authenticated/app/integrations'
-      path: '/integrations'
-      fullPath: '/app/integrations'
-      preLoaderRoute: typeof AuthenticatedAppIntegrationsRouteImport
+    '/_authenticated/app/activity': {
+      id: '/_authenticated/app/activity'
+      path: '/activity'
+      fullPath: '/app/activity'
+      preLoaderRoute: typeof AuthenticatedAppActivityRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/app/dashboard': {
@@ -418,18 +397,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/app/activity': {
-      id: '/_authenticated/app/activity'
-      path: '/activity'
-      fullPath: '/app/activity'
-      preLoaderRoute: typeof AuthenticatedAppActivityRouteImport
+    '/_authenticated/app/integrations': {
+      id: '/_authenticated/app/integrations'
+      path: '/integrations'
+      fullPath: '/app/integrations'
+      preLoaderRoute: typeof AuthenticatedAppIntegrationsRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/app/jobs/': {
-      id: '/_authenticated/app/jobs/'
-      path: '/jobs'
-      fullPath: '/app/jobs/'
-      preLoaderRoute: typeof AuthenticatedAppJobsIndexRouteImport
+    '/_authenticated/app/onboarding': {
+      id: '/_authenticated/app/onboarding'
+      path: '/onboarding'
+      fullPath: '/app/onboarding'
+      preLoaderRoute: typeof AuthenticatedAppOnboardingRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/settings': {
+      id: '/_authenticated/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/team': {
+      id: '/_authenticated/app/team'
+      path: '/team'
+      fullPath: '/app/team'
+      preLoaderRoute: typeof AuthenticatedAppTeamRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/app/candidates/': {
@@ -439,11 +432,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppCandidatesIndexRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/app/jobs/new': {
-      id: '/_authenticated/app/jobs/new'
-      path: '/jobs/new'
-      fullPath: '/app/jobs/new'
-      preLoaderRoute: typeof AuthenticatedAppJobsNewRouteImport
+    '/_authenticated/app/candidates/$id': {
+      id: '/_authenticated/app/candidates/$id'
+      path: '/candidates/$id'
+      fullPath: '/app/candidates/$id'
+      preLoaderRoute: typeof AuthenticatedAppCandidatesIdRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/jobs/': {
+      id: '/_authenticated/app/jobs/'
+      path: '/jobs'
+      fullPath: '/app/jobs/'
+      preLoaderRoute: typeof AuthenticatedAppJobsIndexRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/app/jobs/$id': {
@@ -453,11 +453,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppJobsIdRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/app/candidates/$id': {
-      id: '/_authenticated/app/candidates/$id'
-      path: '/candidates/$id'
-      fullPath: '/app/candidates/$id'
-      preLoaderRoute: typeof AuthenticatedAppCandidatesIdRouteImport
+    '/_authenticated/app/jobs/new': {
+      id: '/_authenticated/app/jobs/new'
+      path: '/jobs/new'
+      fullPath: '/app/jobs/new'
+      preLoaderRoute: typeof AuthenticatedAppJobsNewRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
   }
