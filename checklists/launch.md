@@ -30,7 +30,7 @@
 - ✅ Error monitoring + request-ID tracing (`error_events`, `/app/activity`)
 
 ## Billing
-- ⏳ Stripe checkout + webhook (needs paid Lovable plan)
+- 🚧 Payments: mock checkout live; real Stripe/Paddle checkout + webhook pending
 - ✅ Plan quota enforcement (`monthly_candidate_quota`)
 - ✅ Per-plan rate limits (`check_rate_limit`)
-- ⏳ Cancel → read-only free tier
+- ✅ Cancel → Free tier with exit survey

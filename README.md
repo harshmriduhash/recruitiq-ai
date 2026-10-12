@@ -254,8 +254,12 @@ sequenceDiagram
 - **Error monitoring & request tracing** — every server call gets an `x-request-id`; failures land in `error_events` (PRD §7.8, §10.3)
 - **Activity page** (`/app/activity`) — audit log with CSV export + recent errors for owners/admins
 
+- **Billing (test mode)** — `/app/billing`: plan cards, simulated checkout (card ending 4242 succeeds, 0002 declines), billing history; owners/admins only via `mock_change_plan` (PRD §5.4)
+- **Plan cancellation** — exit survey (reason + feedback), cancel at period end or immediately, "Keep my plan" undo; downgrades to Free (1 open job, 20 candidates/month) with all data kept (PRD §6.5)
+- **Plan job limits** — Free 1 open job, Starter 5, Growth+ unlimited
+
 ### 🚧 Pending (MVP launch blockers)
-- **Billing** — Stripe checkout, Starter $99 / Growth $299, cancel → read-only free tier with exit survey (PRD §5.4, §6.5) — *blocked: built-in payments need a paid Lovable workspace plan*
+- **Real payment gateway** — swap the mock checkout for live Stripe/Paddle checkout + webhook (needs a paid Lovable workspace plan)
 - **Authenticated E2E run** — spec written; needs a test account (`E2E_USER` / `E2E_PASS`)
 - README screenshots (post-first-tenant)
 

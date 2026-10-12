@@ -56,6 +56,6 @@
 - ✅ `/app/settings` — profile, plan usage, ATS sync, password reset link, account deletion
 - ✅ Account deletion with password re-auth + 14-day grace
 - ✅ Password strength meter (sign-up + reset)
-- ⏳ Billing page / upgrade flow (needs paid Lovable plan)
-- ⏳ Subscription cancellation → read-only free tier + exit survey (depends on billing)
+- ✅ Billing page / upgrade flow (mock checkout — real gateway pending)
+- ✅ Subscription cancellation → Free tier + exit survey (period-end or immediate, undo)
 - ✅ `/app/activity` — audit log CSV export + recent errors
